@@ -41,7 +41,13 @@ const HomePage: React.FC<HomePageProps> = ({
       />
 
       {/* Hero Section */}
-      <main className="container py-16" style={{ position: 'relative' }}>
+      <main style={{
+        position: 'relative',
+        minHeight: 'calc(100vh - 89px)', // Вычитаем высоту header
+        display: 'flex',
+        alignItems: 'center'
+      }}>
+        <div className="container">
         {/* Decorative Stars */}
         <div className="hero-star" style={{ position: 'absolute', top: '5%', left: '5%', zIndex: 1 }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -80,11 +86,6 @@ const HomePage: React.FC<HomePageProps> = ({
         </div>
 
         <div className="hero-grid" style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '4rem',
-          alignItems: 'center',
-          minHeight: '70vh',
           position: 'relative',
           zIndex: 2
         }}>
@@ -181,8 +182,7 @@ const HomePage: React.FC<HomePageProps> = ({
             )}
           </div>
         </div>
-
-
+        </div>
       </main>
 
       {/* How it works Section */}

@@ -364,7 +364,7 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
   align-items: center;
-  min-height: 70vh;
+  height: 100%;
 }
 
 .hero-content h1 {
