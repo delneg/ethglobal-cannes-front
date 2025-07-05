@@ -1,42 +1,42 @@
 import {StrictMode} from 'react'
 import {createRoot} from 'react-dom/client'
-import App from './App.tsx'
-import {PrivyProvider} from "@privy-io/react-auth";
-import {celoAlfajores} from "viem/chains";
+import Root from './Root.tsx'
+import {PrivyProvider, PrivyClientConfig} from "@privy-io/react-auth";
+import {baseSepolia, celoAlfajores} from "viem/chains";
 
 
-export const config = {
+export const config: PrivyClientConfig = {
   // Display email and wallet as login methods
   // loginMethods: ['email', 'wallet'],
   // Customize Privy's appearance in your app
   appearance: {
-    theme: 'light',
-    accentColor: '#0076EF',
-    walletChainType: "ethereum-only",
+    // walletChainType: "ethereum-only",
     landingHeader: "ETHGlobal cannes 2025"
   },
   // walletConnectCloudProjectId: config.walletConnectProjectId,
 
   // Create embedded wallets for users who don't have a wallet
   embeddedWallets: {
-    createOnLogin: 'users-without-wallets',
-    showWalletUIs: true,
-    extendedCalldataDecoding: true,
+    createOnLogin: 'all-users',
+    showWalletUIs: false,
+    // extendedCalldataDecoding: true,
     // createOnLogin: 'off', // Anything other than 'off' will not be honored with whitelabel Auth. You must use createWallet from usePrivy()
     // showWalletUIs: false,
   },
-  defaultChain: celoAlfajores,
-  supportedChains: [celoAlfajores],
+  defaultChain: baseSepolia,
+  supportedChains: [celoAlfajores, baseSepolia],
   captchaEnabled: false
 }
+
 
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
       <PrivyProvider
-        appId={}
+        appId={'cmcq0midl00vpl50n6xef1fqs'}
+        clientId={'client-WY6N5YFNGZ5FV4BMmp1krG5b4iqggT7SURWQM6Ccbm5jw'}
         config={config}
       >
-        <App/>
+        <Root/>
       </PrivyProvider>
     </StrictMode>
 )

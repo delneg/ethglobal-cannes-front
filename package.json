@@ -10,13 +10,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@metamask/providers": "^21.0.0",
+    "@privy-io/react-auth": "^2.17.3",
+    "@tanstack/query-sync-storage-persister": "^5.81.5",
+    "@tanstack/react-query": "^5.81.5",
+    "@tanstack/react-query-persist-client": "^5.81.5",
+    "@turnkey/sdk-react": "^5.2.6",
+    "@turnkey/viem": "^0.9.10",
+    "@zerodev/ecdsa-validator": "^5.4.9",
+    "@zerodev/sdk": "^5.4.40",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "@metamask/providers": "^21.0.0",
-    "vite-plugin-node-polyfills": "^0.23.0",
-    "@privy-io/react-auth": "^2.17.3",
-    "viem": "^2.31.7"
-
+    "viem": "^2.31.7",
+    "vite-plugin-node-polyfills": "^0.23.0"
   },
   "devDependencies": {
     "@types/react": "^18.3.18",
