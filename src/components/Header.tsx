@@ -36,17 +36,26 @@ const Header: React.FC<HeaderProps> = ({
       <div className="container">
         <div className="flex items-center py-6" style={{ justifyContent: 'space-between' }}>
           {/* Logo */}
-          <div 
-            className="flex items-center" 
+          <div
+            className="flex items-center"
             style={{ cursor: 'pointer' }}
             onClick={() => navigate('/')}
           >
-            <div className="logo">
-              <span>ZK</span>
-            </div>
-            <span style={{ marginLeft: '12px', fontSize: '20px', fontWeight: 'bold', color: 'var(--color-text)' }}>
-              RecoveryApp
-            </span>
+            <img
+              src="/logo.png"
+              alt="RecoveryApp Logo"
+              style={{
+                // width: '40px',
+                height: '50px',
+                objectFit: 'contain'
+              }}
+              onError={(e) => {
+                // Fallback к текстовому логотипу если изображение не загрузилось
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling.style.display = 'flex';
+              }}
+            />
+
           </div>
 
           {/* Navigation and Auth Section */}
