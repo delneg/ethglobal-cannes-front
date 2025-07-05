@@ -1,26 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Header from './Header';
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-      {/* Header */}
-      <header className="header">
-        <div className="container">
-          <div className="flex items-center py-6">
-            <div className="flex items-center">
-              <div className="logo">
-                <span>ZK</span>
-              </div>
-              <span style={{ marginLeft: '12px', fontSize: '20px', fontWeight: 'bold', color: '#111827' }}>
-                RecoveryApp
-              </span>
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Hero Section */}
       <main className="container py-16">
