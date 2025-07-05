@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface HeaderProps {
   isAuthenticated?: boolean;
   user?: any;
-  userAddress?: string | `0x${string}`;
+  userAddress?: string;
   onAuth?: () => void;
   ready?: boolean;
 }
@@ -14,37 +14,62 @@ const Header: React.FC<HeaderProps> = ({
   user,
   userAddress,
   onAuth,
-  ready = true
+  ready = true,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isHomePage = location.pathname === '/';
 
-  const scrollToSection = (sectionId: string) => {
+  const headerRef = useRef<HTMLElement>(null);
+  const [headerHeight, setHeaderHeight] = useState(0);
+
+  useEffect(() => {
+    const updateHeaderHeight = () => {
+      if (headerRef.current) {
+        const height = headerRef.current.offsetHeight;
+        setHeaderHeight(height);
+        document.documentElement.style.setProperty('--header-height', `${height}px`);
+        console.log('📏 Header height:', height, 'px');
+      }
+    };
+
+    updateHeaderHeight();
+    window.addEventListener('resize', updateHeaderHeight);
+    return () => window.removeEventListener('resize', updateHeaderHeight);
+  }, []);
+
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
+
+    const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
-
   return (
-    <header className="header">
+    <header ref={headerRef} className="header">
       <div className="container">
         <div className="flex items-center py-6" style={{ justifyContent: 'space-between' }}>
-          {/* Logo */}
-          <div 
-            className="flex items-center" 
+          {/* Логотип */}
+          <div
+            className="flex items-center"
             style={{ cursor: 'pointer' }}
             onClick={() => navigate('/')}
           >
             <div className="logo">
               <span>ZK</span>
             </div>
-            <span style={{ marginLeft: '12px', fontSize: '20px', fontWeight: 'bold', color: 'var(--color-text)' }}>
+            <span
+              style={{
+                marginLeft: '12px',
+                fontSize: '20px',
+                fontWeight: 'bold',
+                color: 'var(--color-text)',
+              }}
+            >
               RecoveryApp
             </span>
           </div>
@@ -99,32 +124,38 @@ const Header: React.FC<HeaderProps> = ({
 
             {/* Auth Section */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              {isAuthenticated && userAddress ? (
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  background: 'rgba(16, 185, 129, 0.1)',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  borderRadius: '8px',
-                  padding: '8px 12px'
-                }}>
-                  <div style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    background: 'var(--color-success)'
-                  }}></div>
-                  <span style={{
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    color: 'var(--color-success)',
-                    fontFamily: 'monospace'
-                  }}>
+              {isAuthenticated && userAddress && (
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    background: 'rgba(16, 185, 129, 0.1)',
+                    border: '1px solid rgba(16, 185, 129, 0.3)',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                  }}
+                >
+                  <div
+                    style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '50%',
+                      background: 'var(--color-success)',
+                    }}
+                  ></div>
+                  <span
+                    style={{
+                      fontSize: '14px',
+                      fontWeight: '500',
+                      color: 'var(--color-success)',
+                      fontFamily: 'monospace',
+                    }}
+                  >
                     {formatAddress(userAddress)}
                   </span>
                 </div>
-              ) : null}
+              )}
 
               {onAuth && (
                 <button
@@ -135,7 +166,9 @@ const Header: React.FC<HeaderProps> = ({
                       ? 'transparent'
                       : 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)',
                     border: isAuthenticated ? '1px solid var(--color-border)' : 'none',
-                    color: isAuthenticated ? 'var(--color-text-secondary)' : 'var(--color-background)',
+                    color: isAuthenticated
+                      ? 'var(--color-text-secondary)'
+                      : 'var(--color-background)',
                     fontSize: '14px',
                     fontWeight: '600',
                     padding: '10px 20px',
@@ -143,18 +176,22 @@ const Header: React.FC<HeaderProps> = ({
                     cursor: ready ? 'pointer' : 'not-allowed',
                     transition: 'all 0.2s ease',
                     opacity: ready ? 1 : 0.6,
-                    boxShadow: isAuthenticated ? 'none' : '0 4px 20px rgba(31, 230, 156, 0.3)'
+                    boxShadow: isAuthenticated
+                      ? 'none'
+                      : '0 4px 20px rgba(31, 230, 156, 0.3)',
                   }}
                   onMouseEnter={(e) => {
                     if (ready && !isAuthenticated) {
                       e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.boxShadow = '0 6px 25px rgba(31, 230, 156, 0.4)';
+                      e.currentTarget.style.boxShadow =
+                        '0 6px 25px rgba(31, 230, 156, 0.4)';
                     }
                   }}
                   onMouseLeave={(e) => {
                     if (ready && !isAuthenticated) {
                       e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 4px 20px rgba(31, 230, 156, 0.3)';
+                      e.currentTarget.style.boxShadow =
+                        '0 4px 20px rgba(31, 230, 156, 0.3)';
                     }
                   }}
                 >

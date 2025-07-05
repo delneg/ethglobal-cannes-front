@@ -358,14 +358,21 @@ body {
   background-clip: text;
 }
 
+.main {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: calc(100dvh - var(--header-height))
+}
+
 /* Hero Section Styles */
 .hero-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
   align-items: center;
-  height: 100%;
 }
+
 
 .hero-content h1 {
   text-align: left;
