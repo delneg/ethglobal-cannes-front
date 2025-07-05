@@ -1,13 +1,35 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { EIP1193Provider } from 'viem';
 import Header from './Header';
 
-const HomePage: React.FC = () => {
+interface HomePageProps {
+  isAuthenticated: boolean;
+  user: any;
+  userAddress?: string | `0x${string}`;
+  onAuth: () => void;
+  ready: boolean;
+  eip1193Provider?: EIP1193Provider;
+}
+
+const HomePage: React.FC<HomePageProps> = ({
+  isAuthenticated,
+  user,
+  userAddress,
+  onAuth,
+  ready
+}) => {
   const navigate = useNavigate();
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-      <Header />
+      <Header
+        isAuthenticated={isAuthenticated}
+        user={user}
+        userAddress={userAddress}
+        onAuth={onAuth}
+        ready={ready}
+      />
 
       {/* Hero Section */}
       <main className="container py-16">

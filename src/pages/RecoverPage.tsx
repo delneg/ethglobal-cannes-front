@@ -1,8 +1,24 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { EIP1193Provider } from 'viem';
 import Header from '../components/Header';
 
-const RecoverPage: React.FC = () => {
+interface RecoverPageProps {
+  isAuthenticated: boolean;
+  user: any;
+  userAddress?: string | `0x${string}`;
+  onAuth: () => void;
+  ready: boolean;
+  eip1193Provider?: EIP1193Provider;
+}
+
+const RecoverPage: React.FC<RecoverPageProps> = ({
+  isAuthenticated,
+  user,
+  userAddress,
+  onAuth,
+  ready
+}) => {
   const navigate = useNavigate();
   const [newWalletConnected, setNewWalletConnected] = useState(false);
   const [recoveryStarted, setRecoveryStarted] = useState(false);
@@ -36,7 +52,13 @@ const RecoverPage: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-      <Header />
+      <Header
+        isAuthenticated={isAuthenticated}
+        user={user}
+        userAddress={userAddress}
+        onAuth={onAuth}
+        ready={ready}
+      />
 
       {/* Main Content */}
       <main className="container py-12">

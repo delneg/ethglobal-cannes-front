@@ -1,10 +1,28 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+  isAuthenticated?: boolean;
+  user?: any;
+  userAddress?: string | `0x${string}`;
+  onAuth?: () => void;
+  ready?: boolean;
+}
+
+const Header: React.FC<HeaderProps> = ({
+  isAuthenticated = false,
+  user,
+  userAddress,
+  onAuth,
+  ready = true
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+
+  const formatAddress = (address: string) => {
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  };
 
   return (
     <header className="header">
@@ -29,9 +47,9 @@ const Header: React.FC = () => {
             {!isHomePage && (
               <button
                 onClick={() => navigate('/')}
-                style={{ 
-                  background: 'none', 
-                  border: 'none', 
+                style={{
+                  background: 'none',
+                  border: 'none',
                   cursor: 'pointer',
                   color: '#6b7280',
                   fontSize: '14px',
@@ -47,7 +65,7 @@ const Header: React.FC = () => {
                 Back to Home
               </button>
             )}
-            
+
             {isHomePage && (
               <div style={{ display: 'flex', gap: '16px' }}>
                 <button
@@ -96,6 +114,59 @@ const Header: React.FC = () => {
                 </button>
               </div>
             )}
+
+            {/* Auth Status */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              {isAuthenticated && userAddress ? (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  background: '#f0fdf4',
+                  border: '1px solid #bbf7d0',
+                  borderRadius: '8px',
+                  padding: '6px 12px'
+                }}>
+                  <div style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: '#16a34a'
+                  }}></div>
+                  <span style={{
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    color: '#166534',
+                    fontFamily: 'monospace'
+                  }}>
+                    {formatAddress(userAddress)}
+                  </span>
+                </div>
+              ) : null}
+
+              {onAuth && (
+                <button
+                  onClick={onAuth}
+                  disabled={!ready}
+                  style={{
+                    background: isAuthenticated
+                      ? 'transparent'
+                      : 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+                    border: isAuthenticated ? '1px solid #e5e7eb' : 'none',
+                    color: isAuthenticated ? '#6b7280' : 'white',
+                    fontSize: '12px',
+                    fontWeight: '500',
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    cursor: ready ? 'pointer' : 'not-allowed',
+                    transition: 'all 0.2s ease',
+                    opacity: ready ? 1 : 0.6
+                  }}
+                >
+                  {!ready ? 'Loading...' : isAuthenticated ? 'Disconnect' : 'Connect'}
+                </button>
+              )}
+            </div>
           </nav>
         </div>
       </div>

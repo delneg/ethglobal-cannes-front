@@ -1,18 +1,34 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { EIP1193Provider } from 'viem';
 import Header from '../components/Header';
 
-const CreateWalletPage: React.FC = () => {
+interface CreateWalletPageProps {
+  isAuthenticated: boolean;
+  user: any;
+  userAddress?: string | `0x${string}`;
+  onAuth: () => void;
+  ready: boolean;
+  eip1193Provider?: EIP1193Provider;
+}
+
+const CreateWalletPage: React.FC<CreateWalletPageProps> = ({
+  isAuthenticated,
+  user,
+  userAddress,
+  onAuth,
+  ready,
+  eip1193Provider
+}) => {
   const navigate = useNavigate();
-  const [walletConnected, setWalletConnected] = useState(false);
   const [qrGenerated, setQrGenerated] = useState(false);
   const [recoveryBound, setRecoveryBound] = useState(false);
   const [isBinding, setIsBinding] = useState(false);
 
   const handleConnectWallet = () => {
-    setTimeout(() => {
-      setWalletConnected(true);
-    }, 1000);
+    if (!isAuthenticated) {
+      onAuth();
+    }
   };
 
   const handleGenerateQR = () => {
@@ -29,7 +45,13 @@ const CreateWalletPage: React.FC = () => {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-      <Header />
+      <Header
+        isAuthenticated={isAuthenticated}
+        user={user}
+        userAddress={userAddress}
+        onAuth={onAuth}
+        ready={ready}
+      />
 
       {/* Main Content */}
       <main className="container py-12">
@@ -63,25 +85,27 @@ const CreateWalletPage: React.FC = () => {
               <h2 className="text-2xl font-semibold text-gray-900">Connect Your Wallet</h2>
             </div>
 
-            {walletConnected ? (
+            {isAuthenticated && userAddress ? (
               <div className="status-success">
                 <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span style={{ fontWeight: '500' }}>Wallet connected: 0xAB...1234</span>
+                <span style={{ fontWeight: '500' }}>Wallet connected: {userAddress.slice(0, 6)}...{userAddress.slice(-4)}</span>
               </div>
             ) : (
               <button
                 onClick={handleConnectWallet}
                 className="btn-primary"
+                disabled={!ready}
+                style={{ opacity: ready ? 1 : 0.6 }}
               >
-                Connect Wallet
+                {!ready ? 'Loading...' : 'Connect Wallet'}
               </button>
             )}
           </div>
 
           {/* Step 2: Link Self Passport */}
-          <div className="card" style={{ opacity: !walletConnected ? 0.5 : 1 }}>
+          <div className="card" style={{ opacity: !isAuthenticated ? 0.5 : 1 }}>
             <div className="flex items-center gap-4 mb-6">
               <div className="icon-container icon-purple">
                 <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,11 +118,11 @@ const CreateWalletPage: React.FC = () => {
             {!qrGenerated ? (
               <button
                 onClick={handleGenerateQR}
-                disabled={!walletConnected}
+                disabled={!isAuthenticated}
                 className="btn-primary"
-                style={{ 
-                  opacity: !walletConnected ? 0.5 : 1,
-                  cursor: !walletConnected ? 'not-allowed' : 'pointer'
+                style={{
+                  opacity: !isAuthenticated ? 0.5 : 1,
+                  cursor: !isAuthenticated ? 'not-allowed' : 'pointer'
                 }}
               >
                 Show QR for Self App
