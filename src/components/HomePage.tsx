@@ -189,40 +189,43 @@ const HomePage: React.FC<HomePageProps> = ({
       <section id="how-it-works" style={{ padding: '80px 0', background: 'var(--color-surface)' }}>
         <div className="container">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">How it works</h2>
-            <p className="text-xl text-gray-600" style={{ maxWidth: '600px', margin: '0 auto' }}>
-              Simple, secure, and decentralized wallet recovery in three easy steps
+            <h2 className="text-4xl font-bold text-gray-900 mb-6">How it Works</h2>
+            <p className="text-xl text-gray-600" style={{ maxWidth: '720px', margin: '20px auto' }}>
+              From wallet creation to full recovery — powered by ZK, 7702 and Self Protocol.
             </p>
           </div>
 
           <div className="grid grid-cols-3 gap-8">
+            {/* Step 1 */}
             <div className="card text-center">
-              <div className="icon-container icon-blue mb-6" style={{ margin: '0 auto 24px auto', width: '80px', height: '80px' }}>
+              <div className="icon-container icon-blue mb-6" style={{ margin: '0 auto 24px auto' }}>
                 <span style={{ fontSize: '32px', fontWeight: 'bold' }}>1</span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Setup Recovery</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Create & Link Passport</h3>
               <p className="text-gray-600">
-                Connect your wallet and bind your Self passport to create a secure recovery method using zero-knowledge proofs.
+                Connect your wallet using Privy. Scan your Self Passport and register it as a recovery method via QR on our frontend.
               </p>
             </div>
 
+            {/* Step 2 */}
             <div className="card text-center">
-              <div className="icon-container icon-purple mb-6" style={{ margin: '0 auto 24px auto', width: '80px', height: '80px' }}>
+              <div className="icon-container icon-purple mb-6" style={{ margin: '0 auto 24px auto' }}>
                 <span style={{ fontSize: '32px', fontWeight: 'bold' }}>2</span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Generate Proof</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Lose Access — Recover</h3>
               <p className="text-gray-600">
-                When recovery is needed, scan the QR code with Self App to generate a cryptographic proof of ownership.
+                Lost access? Log in again with a new wallet via Privy and click <strong>“Recover”</strong>. Scan the recovery QR in Self App.
               </p>
             </div>
 
+            {/* Step 3 */}
             <div className="card text-center">
-              <div className="icon-container icon-green mb-6" style={{ margin: '0 auto 24px auto', width: '80px', height: '80px' }}>
+              <div className="icon-container icon-green mb-6" style={{ margin: '0 auto 24px auto' }}>
                 <span style={{ fontSize: '32px', fontWeight: 'bold' }}>3</span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">Recover Access</h3>
+              <h3 className="text-xl font-semibold text-gray-900 mb-4">Transfer Ownership</h3>
               <p className="text-gray-600">
-                Submit the proof to transfer ownership to your new wallet. Your assets are now accessible again.
+                Self generates a ZK-proof. It’s submitted to the smart contract. Ownership of your 7702 account is transferred to the new wallet. Sign “ETHGlobal Cannes 2025” to prove it.
               </p>
             </div>
           </div>
