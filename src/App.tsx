@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from 'react'
-import {useLogin, usePrivy, useWallets} from "@privy-io/react-auth";
-import {EIP1193Provider} from "viem";
+import React, {useEffect, useMemo, useState} from 'react'
+import {useCreateWallet, useLogin, useLogout, usePrivy, useSignAuthorization, useWallets} from "@privy-io/react-auth";
+import {createPublicClient, createWalletClient, custom, EIP1193Provider, Hex, http} from "viem";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import {QueryClient, useMutation, useQuery} from "@tanstack/react-query";
 import { celoAlfajores} from "viem/chains";
@@ -67,6 +67,7 @@ function App() {
     },
     enabled: !!privyEmbeddedWallet,
   });
+
 
   // const baseSepoliaPublicClient = createPublicClient({
   //   chain: ,

@@ -2,12 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EIP1193Provider } from 'viem';
 import Header from './Header';
+import { User } from '@privy-io/react-auth';
 
-
-interface User {
-  name:string;
-  email:string;
-}
 interface HomePageProps {
   isAuthenticated: boolean;
   user: User | null;
@@ -28,7 +24,7 @@ const HomePage: React.FC<HomePageProps> = ({
   const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
-    
+
     const img = new Image();
     img.onload = () => setImageLoaded(true);
     img.onerror = () => setImageLoaded(false);
@@ -405,4 +401,4 @@ const HomePage: React.FC<HomePageProps> = ({
   );
 };
 
-export default HomePage; 
+export default HomePage;
