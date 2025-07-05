@@ -41,13 +41,52 @@ const HomePage: React.FC<HomePageProps> = ({
       />
 
       {/* Hero Section */}
-      <main className="container py-16">
+      <main className="container py-16" style={{ position: 'relative' }}>
+        {/* Decorative Stars */}
+        <div className="hero-star" style={{ position: 'absolute', top: '5%', left: '5%', zIndex: 1 }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L13.09 8.26L19 7L14.74 11.26L21 12L14.74 12.74L19 17L13.09 15.74L12 22L10.91 15.74L5 17L9.26 12.74L3 12L9.26 11.26L5 7L10.91 8.26L12 2Z" fill="white" />
+          </svg>
+        </div>
+
+        <div className="hero-star" style={{ position: 'absolute', top: '20%', right: '8%', zIndex: 1, transform: 'rotate(45deg)' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L13.09 8.26L19 7L14.74 11.26L21 12L14.74 12.74L19 17L13.09 15.74L12 22L10.91 15.74L5 17L9.26 12.74L3 12L9.26 11.26L5 7L10.91 8.26L12 2Z" fill="white" />
+          </svg>
+        </div>
+
+        <div className="hero-star" style={{ position: 'absolute', bottom: '25%', left: '15%', zIndex: 1, transform: 'rotate(-30deg)' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L13.09 8.26L19 7L14.74 11.26L21 12L14.74 12.74L19 17L13.09 15.74L12 22L10.91 15.74L5 17L9.26 12.74L3 12L9.26 11.26L5 7L10.91 8.26L12 2Z" fill="white" />
+          </svg>
+        </div>
+
+        <div className="hero-star" style={{ position: 'absolute', top: '60%', right: '20%', zIndex: 1, transform: 'rotate(90deg)' }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L13.09 8.26L19 7L14.74 11.26L21 12L14.74 12.74L19 17L13.09 15.74L12 22L10.91 15.74L5 17L9.26 12.74L3 12L9.26 11.26L5 7L10.91 8.26L12 2Z" fill="white" />
+          </svg>
+        </div>
+
+        <div className="hero-star" style={{ position: 'absolute', bottom: '10%', right: '5%', zIndex: 1, transform: 'rotate(180deg)' }}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L13.09 8.26L19 7L14.74 11.26L21 12L14.74 12.74L19 17L13.09 15.74L12 22L10.91 15.74L5 17L9.26 12.74L3 12L9.26 11.26L5 7L10.91 8.26L12 2Z" fill="white" />
+          </svg>
+        </div>
+
+        <div className="hero-star" style={{ position: 'absolute', bottom: '20%', right: '40%', zIndex: 1, transform: 'rotate(45deg)' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L13.09 8.26L19 7L14.74 11.26L21 12L14.74 12.74L19 17L13.09 15.74L12 22L10.91 15.74L5 17L9.26 12.74L3 12L9.26 11.26L5 7L10.91 8.26L12 2Z" fill="white" />
+          </svg>
+        </div>
+
         <div className="hero-grid" style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: '4rem',
           alignItems: 'center',
-          minHeight: '70vh'
+          minHeight: '70vh',
+          position: 'relative',
+          zIndex: 2
         }}>
           {/* Left Column - Content */}
           <div className="hero-content">
@@ -70,18 +109,18 @@ const HomePage: React.FC<HomePageProps> = ({
               <button
                 onClick={() => navigate('/create')}
                 className="btn-primary"
-                style={{ minWidth: '200px', fontSize: '18px' }}
+                style={{ width: '220px', fontSize: '18px' }}
               >
                 <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                Authorize
+                Set Up Recovery
               </button>
 
               <button
                 onClick={() => navigate('/recover')}
                 className="btn-secondary"
-                style={{ minWidth: '200px', fontSize: '18px' }}
+                style={{ width: '220px', fontSize: '18px' }}
               >
                 <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />

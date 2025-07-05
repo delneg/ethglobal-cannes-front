@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { EIP1193Provider } from 'viem';
 import Header from '../components/Header';
 
-interface CreateWalletPageProps {
+interface SetupRecoveryPageProps {
   isAuthenticated: boolean;
   user: any;
   userAddress?: string | `0x${string}`;
@@ -12,7 +12,7 @@ interface CreateWalletPageProps {
   eip1193Provider?: EIP1193Provider;
 }
 
-const CreateWalletPage: React.FC<CreateWalletPageProps> = ({
+const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
   isAuthenticated,
   user,
   userAddress,
@@ -174,4 +174,4 @@ const CreateWalletPage: React.FC<CreateWalletPageProps> = ({
   );
 };
 
-export default CreateWalletPage;
+export default SetupRecoveryPage;
