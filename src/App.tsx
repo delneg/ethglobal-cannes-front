@@ -44,29 +44,29 @@ function App() {
   // useEffect(() => {
 
 
-  const privyEmbeddedWallet = useMemo(() => {
-    return wallets.find((wallet) => wallet.walletClientType === "privy");
-  }, [wallets]);
+  // const privyEmbeddedWallet = useMemo(() => {
+  //   return wallets.find((wallet) => wallet.walletClientType === "privy");
+  // }, [wallets]);
 
   /**
    * Creates a wallet client using the embedded wallet's ethereum provider
    * The configured wallet client or null if not available
    */
-  const {data: privyAccount} = useQuery({
-    queryKey: ["walletClient", privyEmbeddedWallet?.address],
-    queryFn: async () => {
-      if (!privyEmbeddedWallet) {
-        return null;
-      }
-      const walletClient = createWalletClient({
-        account: privyEmbeddedWallet.address as Hex,
-        chain: celoAlfajores,
-        transport: custom(await privyEmbeddedWallet.getEthereumProvider()),
-      });
-      return walletClient;
-    },
-    enabled: !!privyEmbeddedWallet,
-  });
+  // const {data: privyAccount} = useQuery({
+  //   queryKey: ["walletClient", privyEmbeddedWallet?.address],
+  //   queryFn: async () => {
+  //     if (!privyEmbeddedWallet) {
+  //       return null;
+  //     }
+  //     const walletClient = createWalletClient({
+  //       account: privyEmbeddedWallet.address as Hex,
+  //       chain: celoAlfajores,
+  //       transport: custom(await privyEmbeddedWallet.getEthereumProvider()),
+  //     });
+  //     return walletClient;
+  //   },
+  //   enabled: !!privyEmbeddedWallet,
+  // });
 
 
   // const baseSepoliaPublicClient = createPublicClient({

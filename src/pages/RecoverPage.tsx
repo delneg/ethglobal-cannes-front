@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, {useMemo, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { EIP1193Provider } from 'viem';
 import Header from '../components/Header';
+import {SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
+import {useSignMessage} from '@privy-io/react-auth';
 
 interface RecoverPageProps {
   isAuthenticated: boolean;
@@ -12,6 +14,9 @@ interface RecoverPageProps {
   eip1193Provider?: EIP1193Provider;
 }
 
+const signerRegistry = "0xCa9359C1e71985b9a8CFd6dADd140892C4ee03FF"
+const oldAddress = "0x743A88896DB4212A8346f72163C5B615f73e30f4"
+
 const RecoverPage: React.FC<RecoverPageProps> = ({
   isAuthenticated,
   user,
@@ -20,32 +25,47 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   ready
 }) => {
   const navigate = useNavigate();
-  const [recoveryStarted, setRecoveryStarted] = useState(false);
+  // const [recoveryStarted, setRecoveryStarted] = useState(false);
   const [ownershipTransferred, setOwnershipTransferred] = useState(false);
   const [messageSigned, setMessageSigned] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [signature, setSignature] = useState("");
 
+  const {signMessage} = useSignMessage();
   const handleConnectNewWallet = () => {
     onAuth();
   };
 
-  const handleStartRecovery = () => {
-    setRecoveryStarted(true);
+  // const handleStartRecovery = () => {
+  //   setRecoveryStarted(true);
+  // };
+
+
+  const handleSignMessage =async  () => {
+    const {signature} = await signMessage({message: 'ETHGlobal Cannes 2025'}, {address: userAddress});
+    setSignature(signature);
+    setMessageSigned(true);
   };
 
-  const handleSubmitProof = async () => {
-    setIsSubmitting(true);
-    setTimeout(() => {
-      setOwnershipTransferred(true);
-      setIsSubmitting(false);
-    }, 3000);
-  };
 
-  const handleSignMessage = () => {
-    setTimeout(() => {
-      setMessageSigned(true);
-    }, 2000);
-  };
+  const selfApp = useMemo(() => {
+    if (!userAddress || userAddress == '') return null;
+    console.log("Creating self app", userAddress, 'userId', oldAddress);
+    return new SelfAppBuilder({
+      appName: "My App (Dev)",
+      scope: "my-app-dev",
+      endpoint: signerRegistry,
+      endpointType: "staging_celo", // Use testnet
+      userId: oldAddress,
+      userIdType: "hex",
+      version: 2,
+      userDefinedData: userAddress,
+      disclosures: {
+        minimumAge: 11,
+        nationality: true,
+      }
+    }).build()
+  }, [userAddress]);
+
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)' }}>
@@ -112,32 +132,22 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
               <h2 className="text-2xl font-semibold text-gray-900">Start Recovery Process</h2>
             </div>
 
-            {!recoveryStarted ? (
-              <button
-                onClick={handleStartRecovery}
-                disabled={!(isAuthenticated && userAddress)}
-                className="btn-primary"
-                style={{
-                  opacity: !(isAuthenticated && userAddress) ? 0.5 : 1,
-                  cursor: !(isAuthenticated && userAddress) ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Start Recovery
-              </button>
-            ) : (
-              <div className="text-center">
-                <div className="qr-placeholder" style={{ margin: '0 auto 16px auto' }}>
-                  <div style={{ fontSize: '60px', marginBottom: '16px' }}>🔐</div>
-                  <div style={{ fontSize: '14px', color: '#6b7280' }}>Recovery QR Code</div>
-                  <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '8px', fontFamily: 'monospace' }}>
-                    zkproof://recovery/{Date.now()}
-                  </div>
+            {selfApp && userAddress && !ownershipTransferred &&
+                <div className="text-center">
+                  <SelfQRcodeWrapper
+                      selfApp={selfApp}
+                      onSuccess={() => {
+                        setOwnershipTransferred(true);
+                        console.log('Signer set successful');
+                        // Perform actions after successful verification
+                      }}
+                      onError={(err) => console.log(err)}
+                  />
+                  <p style={{ color: '#4b5563', fontSize: '14px' }}>
+                    Scan this code using Self App to generate ZK proof of ownership
+                  </p>
                 </div>
-                <p style={{ color: '#4b5563', fontSize: '14px' }}>
-                  Scan this code using Self App to generate ZK proof of ownership
-                </p>
-              </div>
-            )}
+            }
           </div>
 
 
@@ -163,22 +173,22 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                     </svg>
                     <span style={{ fontWeight: '500' }}>Message signed successfully!</span>
                   </div>
-                  <div style={{ 
-                    background: '#f9fafb', 
-                    borderRadius: '12px', 
-                    padding: '24px', 
-                    border: '1px solid #e5e7eb' 
+                  <div style={{
+                    background: '#f9fafb',
+                    borderRadius: '12px',
+                    padding: '24px',
+                    border: '1px solid #e5e7eb'
                   }}>
                     <p style={{ fontSize: '14px', color: '#4b5563', marginBottom: '8px' }}>Signed Message:</p>
-                    <p style={{ 
-                      fontFamily: 'monospace', 
-                      fontSize: '14px', 
-                      background: 'white', 
-                      padding: '12px', 
-                      borderRadius: '6px', 
-                      border: '1px solid #e5e7eb' 
+                    <p style={{
+                      fontFamily: 'monospace',
+                      fontSize: '14px',
+                      background: 'white',
+                      padding: '12px',
+                      borderRadius: '6px',
+                      border: '1px solid #e5e7eb'
                     }}>
-                      "ETHGlobal Cannes 2025 - Wallet Recovery Completed"
+                      {signature}
                     </p>
                   </div>
                 </div>
@@ -195,14 +205,14 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
 
           {/* Success Message */}
           {messageSigned && (
-            <div className="card text-center" style={{ 
-              background: 'linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%)', 
-              border: '1px solid #bbf7d0' 
+            <div className="card text-center" style={{
+              background: 'linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%)',
+              border: '1px solid #bbf7d0'
             }}>
               <div style={{ fontSize: '60px', marginBottom: '24px' }}>🎉</div>
               <h2 className="text-3xl font-bold text-gray-900 mb-4">Recovery Complete!</h2>
               <p style={{ color: '#4b5563', marginBottom: '32px' }}>
-                Your wallet has been successfully recovered using zero-knowledge proofs. 
+                Your wallet has been successfully recovered using zero-knowledge proofs.
                 You now have full control of your assets on the new address.
               </p>
               <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
