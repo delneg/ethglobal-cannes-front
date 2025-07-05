@@ -1,13 +1,16 @@
-import React, {useEffect, useMemo, useState} from 'react'
-import {useCreateWallet, useLogin, usePrivy, useSignAuthorization, useWallets} from "@privy-io/react-auth";
-import {createPublicClient, createWalletClient, custom, EIP1193Provider, Hex, http} from "viem";
+import React, {useEffect, useState} from 'react'
+import {useLogin, usePrivy, useWallets} from "@privy-io/react-auth";
+import {EIP1193Provider} from "viem";
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import {QueryClient, useMutation, useQuery} from "@tanstack/react-query";
 import { celoAlfajores} from "viem/chains";
 import {createKernelAccount, createKernelAccountClient, createZeroDevPaymasterClient} from "@zerodev/sdk";
 import {signerToEcdsaValidator} from "@zerodev/ecdsa-validator";
 import {getEntryPoint, KERNEL_V3_3} from "@zerodev/sdk/constants";
 import {KernelVersionToAddressesMap} from "@zerodev/sdk/constants";
-
+import HomePage from './components/HomePage';
+import SetupRecoveryPage from './pages/CreateWalletPage';
+import RecoverPage from './pages/RecoverPage';
 import {encodeFunctionData, formatUnits, parseUnits} from "viem";
 
 export type EmbeddedWallet = {
@@ -25,7 +28,6 @@ export const ZERODEV_TOKEN_ADDRESS = "0xB763277E5139fB8Ac694Fb9ef14489ec5092750c
 export const ZERODEV_DECIMALS = 6;
 export const EXPLORER_URL = celoAlfajores.blockExplorers.default.url;
 
-
 function App() {
 
   const [userAddress, setUserAddress] = useState<string | undefined | `0x${string}`>(undefined);
@@ -35,6 +37,11 @@ function App() {
   const {createWallet} = useCreateWallet();
   const {signAuthorization} = useSignAuthorization();
   const {wallets, ready: walletsReady} = useWallets();
+  const { logout } = useLogout();
+
+
+
+  // useEffect(() => {
 
 
   const privyEmbeddedWallet = useMemo(() => {
@@ -141,33 +148,33 @@ function App() {
     },
   });
 
-  useEffect(() => {
-    if (user) {
-      if (!privyEmbeddedWallet) {
-        createEmbeddedWallet();
+
+    useEffect(() => {
+      if (user) {
+        if (!privyEmbeddedWallet) {
+          createEmbeddedWallet();
+        }
       }
-    }
-  }, [user, privyEmbeddedWallet, createEmbeddedWallet]);
+    }, [user, privyEmbeddedWallet, createEmbeddedWallet]);
 
-  const {data: embeddedWallet} = useQuery<EmbeddedWallet | null>({
-    queryKey: ["embeddedWallet", privyEmbeddedWallet?.address, user],
-    queryFn: async () => {
-      if (!user) return null;
-      if (!privyEmbeddedWallet) return null;
+    const {data: embeddedWallet} = useQuery<EmbeddedWallet | null>({
+      queryKey: ["embeddedWallet", privyEmbeddedWallet?.address, user],
+      queryFn: async () => {
+        if (!user) return null;
+        if (!privyEmbeddedWallet) return null;
 
-      return {
-        address: privyEmbeddedWallet.address as `0x${string}`,
-        user: user.email?.address ?? user.id,
-      };
-    },
-    enabled: !!privyEmbeddedWallet && !!user,
-  });
+        return {
+          address: privyEmbeddedWallet.address as `0x${string}`,
+          user: user.email?.address ?? user.id,
+        };
+      },
+      enabled: !!privyEmbeddedWallet && !!user,
+    });
 
-  useEffect(() => {
-    console.log('embedded wallet changed', embeddedWallet);
-  }, [embeddedWallet]);
+    useEffect(() => {
+      console.log('embedded wallet changed', embeddedWallet);
+    }, [embeddedWallet]);
   //
-  // useEffect(() => {
   //   if (!walletsReady || wallets.length === 0) return;
   //
   //
@@ -224,42 +231,44 @@ function App() {
     },
   });
 
-  const {login} = useLogin({
-    onComplete: ({user, isNewUser, wasAlreadyAuthenticated, loginMethod, loginAccount}) => {
-      console.log("User logged in")
+  const { login } = useLogin({
+    onComplete: ({ user, isNewUser, wasAlreadyAuthenticated, loginMethod, loginAccount }) => {
+      console.log("User logged in");
       console.log(user, isNewUser, wasAlreadyAuthenticated, loginMethod, loginAccount);
     },
     onError: (error) => {
-      // TODO: handle privy error
-      console.log(error);
+      console.log("Privy login error:", error);
     },
   });
-  const handleOpenModal = () => {
+
+  const handleAuth = () => {
     if (ready && authenticated) {
-      console.log('auth done')
+      logout();
     } else {
       login();
     }
   };
-  return (
-    <div>
-      <button onClick={handleOpenModal}>login</button>
-      <button
-        onClick={() => sendTransaction()}
-      >mint tokens
-      </button>
-      {txHash && (
-        <a
-          href={`${EXPLORER_URL}/tx/${txHash}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-primary text-sm underline underline-offset-4"
-        >
-          View Sponsored Transaction
-        </a>
-      )}
-    </div>
 
+  const authProps = {
+    isAuthenticated: authenticated,
+    user,
+    userAddress,
+    onAuth: handleAuth,
+    ready,
+    eip1193Provider
+  };
+
+  // Debug logging
+  console.log('App state:', { authenticated, userAddress, ready });
+
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage {...authProps} />} />
+        <Route path="/setuprecovery" element={<SetupRecoveryPage {...authProps} />} />
+        <Route path="/recover" element={<RecoverPage {...authProps} />} />
+      </Routes>
+    </Router>
   );
 }
 
