@@ -51,7 +51,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)' }}>
       <Header
         isAuthenticated={isAuthenticated}
         user={user}
@@ -137,55 +137,6 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
             )}
           </div>
 
-          {/* Step 3: Submit Proof */}
-          <div className="card" style={{ opacity: !recoveryStarted ? 0.5 : 1 }}>
-            <div className="flex items-center gap-4 mb-6">
-              <div className="icon-container icon-green">
-                <span style={{ color: 'white', fontWeight: 'bold' }}>3</span>
-              </div>
-              <h2 className="text-2xl font-semibold text-gray-900">Submit ZK Proof</h2>
-            </div>
-
-            <p style={{ color: '#4b5563', marginBottom: '24px', lineHeight: '1.6' }}>
-              After scanning the QR code with your Self App, submit the generated zero-knowledge proof to complete the recovery.
-            </p>
-
-            {ownershipTransferred ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div className="status-success">
-                  <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <span style={{ fontWeight: '500' }}>Ownership Transferred!</span>
-                </div>
-                <p style={{ fontSize: '14px', color: '#4b5563' }}>
-                  Your wallet ownership has been successfully transferred to the new address.
-                </p>
-              </div>
-            ) : (
-              <button
-                onClick={handleSubmitProof}
-                disabled={!recoveryStarted || isSubmitting}
-                className="btn-primary"
-                style={{ 
-                  opacity: (!recoveryStarted || isSubmitting) ? 0.5 : 1,
-                  cursor: (!recoveryStarted || isSubmitting) ? 'not-allowed' : 'pointer'
-                }}
-              >
-                {isSubmitting ? (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <svg className="animate-spin" style={{ width: '16px', height: '16px' }} fill="none" viewBox="0 0 24 24">
-                      <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Verifying Proof...
-                  </span>
-                ) : (
-                  'Submit Proof'
-                )}
-              </button>
-            )}
-          </div>
 
           {/* Step 4: Sign Message */}
           {ownershipTransferred && (

@@ -37,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({
             <div className="logo">
               <span>ZK</span>
             </div>
-            <span style={{ marginLeft: '12px', fontSize: '20px', fontWeight: 'bold', color: '#111827' }}>
+            <span style={{ marginLeft: '12px', fontSize: '20px', fontWeight: 'bold', color: 'var(--color-text)' }}>
               RecoveryApp
             </span>
           </div>
@@ -51,7 +51,7 @@ const Header: React.FC<HeaderProps> = ({
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer',
-                  color: '#6b7280',
+                  color: 'var(--color-text-secondary)',
                   fontSize: '14px',
                   fontWeight: '500',
                   display: 'flex',
@@ -73,7 +73,7 @@ const Header: React.FC<HeaderProps> = ({
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#6b7280',
+                    color: 'var(--color-text-secondary)',
                     fontSize: '14px',
                     fontWeight: '500',
                     cursor: 'pointer',
@@ -82,10 +82,10 @@ const Header: React.FC<HeaderProps> = ({
                     transition: 'color 0.2s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#3b82f6';
+                    e.currentTarget.style.color = 'var(--color-primary)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#6b7280';
+                    e.currentTarget.style.color = 'var(--color-text-secondary)';
                   }}
                 >
                   Create
@@ -95,7 +95,7 @@ const Header: React.FC<HeaderProps> = ({
                   style={{
                     background: 'none',
                     border: 'none',
-                    color: '#6b7280',
+                    color: 'var(--color-text-secondary)',
                     fontSize: '14px',
                     fontWeight: '500',
                     cursor: 'pointer',
@@ -104,10 +104,10 @@ const Header: React.FC<HeaderProps> = ({
                     transition: 'color 0.2s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.color = '#3b82f6';
+                    e.currentTarget.style.color = 'var(--color-primary)';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.color = '#6b7280';
+                    e.currentTarget.style.color = 'var(--color-text-secondary)';
                   }}
                 >
                   Recover
@@ -122,8 +122,8 @@ const Header: React.FC<HeaderProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  background: '#f0fdf4',
-                  border: '1px solid #bbf7d0',
+                  background: 'rgba(16, 185, 129, 0.1)',
+                  border: '1px solid rgba(16, 185, 129, 0.3)',
                   borderRadius: '8px',
                   padding: '6px 12px'
                 }}>
@@ -131,12 +131,12 @@ const Header: React.FC<HeaderProps> = ({
                     width: '8px',
                     height: '8px',
                     borderRadius: '50%',
-                    background: '#16a34a'
+                    background: 'var(--color-success)'
                   }}></div>
                   <span style={{
                     fontSize: '12px',
                     fontWeight: '500',
-                    color: '#166534',
+                    color: 'var(--color-success)',
                     fontFamily: 'monospace'
                   }}>
                     {formatAddress(userAddress)}
@@ -151,9 +151,9 @@ const Header: React.FC<HeaderProps> = ({
                   style={{
                     background: isAuthenticated
                       ? 'transparent'
-                      : 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                    border: isAuthenticated ? '1px solid #e5e7eb' : 'none',
-                    color: isAuthenticated ? '#6b7280' : 'white',
+                      : 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%)',
+                    border: isAuthenticated ? '1px solid var(--color-border)' : 'none',
+                    color: isAuthenticated ? 'var(--color-text-secondary)' : 'var(--color-background)',
                     fontSize: '12px',
                     fontWeight: '500',
                     padding: '6px 12px',

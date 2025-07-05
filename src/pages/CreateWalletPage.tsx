@@ -44,7 +44,7 @@ const CreateWalletPage: React.FC<CreateWalletPageProps> = ({
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)' }}>
       <Header
         isAuthenticated={isAuthenticated}
         user={user}
@@ -140,53 +140,6 @@ const CreateWalletPage: React.FC<CreateWalletPageProps> = ({
                   Scan this code using your Self App to authorize this device for recovery.
                 </p>
               </div>
-            )}
-          </div>
-
-          {/* Step 3: Initialize Recovery Module */}
-          <div className="card" style={{ opacity: !qrGenerated ? 0.5 : 1 }}>
-            <div className="flex items-center gap-4 mb-6">
-              <div className="icon-container icon-green">
-                <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-semibold text-gray-900">Initialize Recovery Module</h2>
-            </div>
-
-            <p style={{ color: '#4b5563', marginBottom: '24px', lineHeight: '1.6' }}>
-              This will send a transaction to bind your Self ID as a recovery method to your 7702 smart account.
-            </p>
-
-            {recoveryBound ? (
-              <div className="status-success">
-                <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span style={{ fontWeight: '500' }}>Bound successfully!</span>
-              </div>
-            ) : (
-              <button
-                onClick={handleBindRecovery}
-                disabled={!qrGenerated || isBinding}
-                className="btn-primary"
-                style={{ 
-                  opacity: (!qrGenerated || isBinding) ? 0.5 : 1,
-                  cursor: (!qrGenerated || isBinding) ? 'not-allowed' : 'pointer'
-                }}
-              >
-                {isBinding ? (
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <svg className="animate-spin" style={{ width: '16px', height: '16px' }} fill="none" viewBox="0 0 24 24">
-                      <circle style={{ opacity: 0.25 }} cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path style={{ opacity: 0.75 }} fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Sending...
-                  </span>
-                ) : (
-                  'Bind for Recovery (Send Tx)'
-                )}
-              </button>
             )}
           </div>
 
