@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useState} from 'react'
 import {useCreateWallet, useLogin, usePrivy, useSignAuthorization, useWallets} from "@privy-io/react-auth";
 import {createPublicClient, createWalletClient, custom, EIP1193Provider, Hex, http} from "viem";
 import {QueryClient, useMutation, useQuery} from "@tanstack/react-query";
-import {baseSepolia, celoAlfajores} from "viem/chains";
+import { celoAlfajores} from "viem/chains";
 import {createKernelAccount, createKernelAccountClient, createZeroDevPaymasterClient} from "@zerodev/sdk";
 import {signerToEcdsaValidator} from "@zerodev/ecdsa-validator";
 import {getEntryPoint, KERNEL_V3_3} from "@zerodev/sdk/constants";
@@ -15,15 +15,15 @@ export type EmbeddedWallet = {
   user: string;
 };
 const PROJECT_ID = "5d90c0c9-6051-427b-b804-d4dac215b98c"
-export const baseSepoliaBundlerRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/84532`;
-export const baseSepoliaPaymasterRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/84532`;
+export const celoAlfajoresBundlerRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/44787`;
+export const celoAlfajoresPaymasterRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/44787`;
 
 export const entryPoint = getEntryPoint("0.7");
 export const kernelVersion = KERNEL_V3_3;
 export const kernelAddresses = KernelVersionToAddressesMap[kernelVersion];
 export const ZERODEV_TOKEN_ADDRESS = "0xB763277E5139fB8Ac694Fb9ef14489ec5092750c";
 export const ZERODEV_DECIMALS = 6;
-export const EXPLORER_URL = baseSepolia.blockExplorers.default.url;
+export const EXPLORER_URL = celoAlfajores.blockExplorers.default.url;
 
 
 function App() {
@@ -61,10 +61,10 @@ function App() {
     enabled: !!privyEmbeddedWallet,
   });
 
-  const baseSepoliaPublicClient = createPublicClient({
-    chain: baseSepolia,
-    transport: http(),
-  });
+  // const baseSepoliaPublicClient = createPublicClient({
+  //   chain: ,
+  //   transport: http(),
+  // });
   /**
    * Creates a public client for blockchain interactions
    * The configured public client or null if wallet client is not available
@@ -78,13 +78,13 @@ function App() {
   //  * The configured paymaster client or null if public client is not available
   //  */
 
-  const baseSepoliaPaymasterClient = useMemo(() => {
-    if (!baseSepoliaPublicClient) return null;
+  const celoTestnetPaymasterClient = useMemo(() => {
+    if (!celoTestnetPublicClient) return null;
     return createZeroDevPaymasterClient({
-      chain: baseSepolia,
-      transport: http(baseSepoliaPaymasterRpc),
+      chain: celoAlfajores,
+      transport: http(celoAlfajoresPaymasterRpc),
     });
-  }, [baseSepoliaPublicClient]);
+  }, [celoTestnetPublicClient]);
 
   /**
    * Creates an ECDSA validator for the kernel account
@@ -94,12 +94,12 @@ function App() {
     queryKey: [
       "kernelClient",
       privyAccount?.account.address,
-      baseSepoliaPaymasterClient?.name,
+      celoTestnetPaymasterClient?.name,
     ],
     queryFn: async () => {
-      if (!privyAccount || !baseSepoliaPublicClient || !baseSepoliaPaymasterClient) return null;
+      if (!privyAccount || !celoTestnetPublicClient || !celoTestnetPaymasterClient) return null;
 
-      const ecdsaValidator = await signerToEcdsaValidator(baseSepoliaPublicClient, {
+      const ecdsaValidator = await signerToEcdsaValidator(celoTestnetPublicClient, {
         signer: privyAccount,
         entryPoint,
         kernelVersion,
@@ -107,10 +107,10 @@ function App() {
 
       const authorization = await signAuthorization({
         contractAddress: kernelAddresses.accountImplementationAddress,
-        chainId: baseSepolia.id,
+        chainId: celoAlfajores.id,
       });
 
-      const kernelAccount = await createKernelAccount(baseSepoliaPublicClient, {
+      const kernelAccount = await createKernelAccount(celoTestnetPublicClient, {
         eip7702Account: privyAccount,
         entryPoint,
         kernelVersion,
@@ -119,15 +119,15 @@ function App() {
 
       const kernelAccountClient = createKernelAccountClient({
         account: kernelAccount,
-        chain: baseSepolia,
-        bundlerTransport: http(baseSepoliaBundlerRpc),
-        paymaster: baseSepoliaPaymasterClient,
-        client: baseSepoliaPublicClient,
+        chain: celoAlfajores,
+        bundlerTransport: http(celoAlfajoresBundlerRpc),
+        paymaster: celoTestnetPaymasterClient,
+        client: celoTestnetPublicClient,
       });
 
       return {kernelAccountClient, kernelAccount, ecdsaValidator};
     },
-    enabled: !!baseSepoliaPublicClient && !!privyAccount && !!baseSepoliaPaymasterClient,
+    enabled: !!celoTestnetPublicClient && !!privyAccount && !!celoTestnetPaymasterClient,
   });
 
 
@@ -196,23 +196,22 @@ function App() {
       const kernelAccountClient = kernelClients?.kernelAccountClient;
       return kernelAccountClient.sendTransaction({
         account: kernelAccountClient.account,
-        to: ZERODEV_TOKEN_ADDRESS,
+        to: "0x406F912c5a5B6137Be1153ec71DD9c03624FF3E6",
         value: BigInt(0),
         data: encodeFunctionData({
           abi: [
             {
-              name: "mint",
+              name: "setScope",
               type: "function",
               inputs: [
-                {name: "to", type: "address"},
-                {name: "amount", type: "uint256"},
+                {name: "_scope", type: "uint256"},
               ],
             },
           ],
-          functionName: "mint",
-          args: [kernelAccountClient.account.address, parseUnits("10", ZERODEV_DECIMALS)],
+          functionName: "setScope",
+          args: ["14083505874396192783076663245664044579645088232806584587291798726989971910781"],
         }),
-        chain: baseSepolia,
+        chain: celoAlfajores,
       });
     },
     onSuccess: (data) => {

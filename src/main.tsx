@@ -2,7 +2,7 @@ import {StrictMode} from 'react'
 import {createRoot} from 'react-dom/client'
 import Root from './Root.tsx'
 import {PrivyProvider, PrivyClientConfig} from "@privy-io/react-auth";
-import {baseSepolia, celoAlfajores} from "viem/chains";
+import {celoAlfajores} from "viem/chains";
 
 
 export const config: PrivyClientConfig = {
@@ -23,8 +23,8 @@ export const config: PrivyClientConfig = {
     // createOnLogin: 'off', // Anything other than 'off' will not be honored with whitelabel Auth. You must use createWallet from usePrivy()
     // showWalletUIs: false,
   },
-  defaultChain: baseSepolia,
-  supportedChains: [celoAlfajores, baseSepolia],
+  defaultChain: celoAlfajores,
+  supportedChains: [celoAlfajores],
   captchaEnabled: false
 }
 
