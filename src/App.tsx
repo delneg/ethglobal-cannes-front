@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { useLogin, usePrivy, useWallets, useLogout } from "@privy-io/react-auth";
 import { EIP1193Provider } from "viem";
 import HomePage from './components/HomePage';
-import CreateWalletPage from './pages/CreateWalletPage';
+import SetupRecoveryPage from './pages/CreateWalletPage';
 import RecoverPage from './pages/RecoverPage';
 
 function App() {
@@ -56,11 +56,14 @@ function App() {
     eip1193Provider
   };
 
+  // Debug logging
+  console.log('App state:', { authenticated, userAddress, ready });
+
   return (
     <Router>
       <Routes>
         <Route path="/" element={<HomePage {...authProps} />} />
-        <Route path="/create" element={<CreateWalletPage {...authProps} />} />
+        <Route path="/setuprecovery" element={<SetupRecoveryPage {...authProps} />} />
         <Route path="/recover" element={<RecoverPage {...authProps} />} />
       </Routes>
     </Router>

@@ -26,9 +26,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
   const [isBinding, setIsBinding] = useState(false);
 
   const handleConnectWallet = () => {
-    if (!isAuthenticated) {
-      onAuth();
-    }
+    onAuth();
   };
 
   const handleGenerateQR = () => {
@@ -91,6 +89,10 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
                 <span style={{ fontWeight: '500' }}>Wallet connected: {userAddress.slice(0, 6)}...{userAddress.slice(-4)}</span>
+              </div>
+            ) : isAuthenticated && !userAddress ? (
+              <div style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
+                Loading wallet address...
               </div>
             ) : (
               <button

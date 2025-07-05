@@ -20,16 +20,13 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   ready
 }) => {
   const navigate = useNavigate();
-  const [newWalletConnected, setNewWalletConnected] = useState(false);
   const [recoveryStarted, setRecoveryStarted] = useState(false);
   const [ownershipTransferred, setOwnershipTransferred] = useState(false);
   const [messageSigned, setMessageSigned] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleConnectNewWallet = () => {
-    setTimeout(() => {
-      setNewWalletConnected(true);
-    }, 1000);
+    onAuth();
   };
 
   const handleStartRecovery = () => {
@@ -83,25 +80,31 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
               <h2 className="text-2xl font-semibold text-gray-900">Connect New Wallet</h2>
             </div>
 
-            {newWalletConnected ? (
+            {isAuthenticated && userAddress ? (
               <div className="status-success">
                 <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span style={{ fontWeight: '500' }}>New wallet connected: 0xCD...5678</span>
+                <span style={{ fontWeight: '500' }}>New wallet connected: {userAddress.slice(0, 6)}...{userAddress.slice(-4)}</span>
+              </div>
+            ) : isAuthenticated && !userAddress ? (
+              <div style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
+                Loading wallet address...
               </div>
             ) : (
               <button
                 onClick={handleConnectNewWallet}
                 className="btn-primary"
+                disabled={!ready}
+                style={{ opacity: ready ? 1 : 0.6 }}
               >
-                Connect New Wallet
+                {!ready ? 'Loading...' : 'Connect New Wallet'}
               </button>
             )}
           </div>
 
           {/* Step 2: Start Recovery */}
-          <div className="card" style={{ opacity: !newWalletConnected ? 0.5 : 1 }}>
+          <div className="card" style={{ opacity: !(isAuthenticated && userAddress) ? 0.5 : 1 }}>
             <div className="flex items-center gap-4 mb-6">
               <div className="icon-container icon-purple">
                 <span style={{ color: 'white', fontWeight: 'bold' }}>2</span>
@@ -112,11 +115,11 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
             {!recoveryStarted ? (
               <button
                 onClick={handleStartRecovery}
-                disabled={!newWalletConnected}
+                disabled={!(isAuthenticated && userAddress)}
                 className="btn-primary"
-                style={{ 
-                  opacity: !newWalletConnected ? 0.5 : 1,
-                  cursor: !newWalletConnected ? 'not-allowed' : 'pointer'
+                style={{
+                  opacity: !(isAuthenticated && userAddress) ? 0.5 : 1,
+                  cursor: !(isAuthenticated && userAddress) ? 'not-allowed' : 'pointer'
                 }}
               >
                 Start Recovery

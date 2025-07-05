@@ -107,7 +107,7 @@ const HomePage: React.FC<HomePageProps> = ({
             {/* Action Buttons */}
             <div className="hero-buttons" style={{ display: 'flex', flexDirection: 'column', gap: '16px', alignItems: 'flex-start' }}>
               <button
-                onClick={() => navigate('/create')}
+                onClick={() => navigate('/setuprecovery')}
                 className="btn-primary"
                 style={{ width: '220px', fontSize: '18px' }}
               >
