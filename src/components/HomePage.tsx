@@ -10,7 +10,6 @@ interface HomePageProps {
   userAddress?: string;
   onAuth: () => void;
   ready: boolean;
-  eip1193Provider?: EIP1193Provider;
 }
 
 const HomePage: React.FC<HomePageProps> = ({

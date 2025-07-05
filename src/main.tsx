@@ -4,6 +4,7 @@ import Root from './Root.tsx'
 import './index.css'
 import {PrivyProvider, PrivyClientConfig} from "@privy-io/react-auth";
 import {celoAlfajores} from "viem/chains";
+import {ClientContextProvider} from "./context/ClientContext.tsx";
 
 
 export const config: PrivyClientConfig = {
@@ -37,7 +38,9 @@ createRoot(document.getElementById('root')!).render(
         clientId={'client-WY6N5YFNGZ5FV4BMmp1krG5b4iqggT7SURWQM6Ccbm5jw'}
         config={config}
       >
-        <Root/>
+        <ClientContextProvider>
+          <Root/>
+        </ClientContextProvider>
       </PrivyProvider>
     </StrictMode>
 )

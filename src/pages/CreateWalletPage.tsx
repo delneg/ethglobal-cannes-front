@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, {useMemo, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EIP1193Provider } from 'viem';
+import {EIP1193Provider, http} from 'viem';
 import Header from '../components/Header';
+import {SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
+import {createZeroDevPaymasterClient} from "@zerodev/sdk";
+import {celoAlfajores} from "viem/chains";
+import {celoAlfajoresPaymasterRpc} from "../App.tsx";
 
 interface SetupRecoveryPageProps {
   isAuthenticated: boolean;
@@ -12,6 +16,9 @@ interface SetupRecoveryPageProps {
   eip1193Provider?: EIP1193Provider;
 }
 
+const passportRegistry = "0xDe457B24f35D8c72Aa3535c3D29edfBaEDB9A19E"
+
+
 const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
   isAuthenticated,
   user,
@@ -21,25 +28,30 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
   eip1193Provider
 }) => {
   const navigate = useNavigate();
-  const [qrGenerated, setQrGenerated] = useState(false);
   const [recoveryBound, setRecoveryBound] = useState(false);
-  const [isBinding, setIsBinding] = useState(false);
 
   const handleConnectWallet = () => {
     onAuth();
   };
 
-  const handleGenerateQR = () => {
-    setQrGenerated(true);
-  };
-
-  const handleBindRecovery = async () => {
-    setIsBinding(true);
-    setTimeout(() => {
-      setRecoveryBound(true);
-      setIsBinding(false);
-    }, 3000);
-  };
+  const selfApp = useMemo(() => {
+    if (!userAddress || userAddress == '') return null;
+    return new SelfAppBuilder({
+      appName: "My App (Dev)",
+      scope: "my-app-dev",
+      endpoint: passportRegistry,
+      endpointType: "staging_celo", // Use testnet
+      userId: userAddress,
+      userIdType: "hex",
+      version: 2,
+      //TODO: cange data
+      userDefinedData: "jfklds",
+      disclosures: {
+        minimumAge: 11,
+        nationality: true,
+      }
+    }).build()
+  }, [userAddress]);
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)' }}>
@@ -55,13 +67,13 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
       <main className="container py-12">
         {/* Page Header */}
         <div className="text-center mb-12">
-          <div style={{ 
-            fontSize: '14px', 
-            fontWeight: '500', 
-            color: '#6b7280', 
-            textTransform: 'uppercase', 
-            letterSpacing: '0.1em', 
-            marginBottom: '8px' 
+          <div style={{
+            fontSize: '14px',
+            fontWeight: '500',
+            color: '#6b7280',
+            textTransform: 'uppercase',
+            letterSpacing: '0.1em',
+            marginBottom: '8px'
           }}>
             Step 1 of 3
           </div>
@@ -107,43 +119,34 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
           </div>
 
           {/* Step 2: Link Self Passport */}
-          <div className="card" style={{ opacity: !isAuthenticated ? 0.5 : 1 }}>
-            <div className="flex items-center gap-4 mb-6">
-              <div className="icon-container icon-purple">
-                <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-semibold text-gray-900">Link Self Passport</h2>
-            </div>
-
-            {!qrGenerated ? (
-              <button
-                onClick={handleGenerateQR}
-                disabled={!isAuthenticated}
-                className="btn-primary"
-                style={{
-                  opacity: !isAuthenticated ? 0.5 : 1,
-                  cursor: !isAuthenticated ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Show QR for Self App
-              </button>
-            ) : (
-              <div className="text-center">
-                <div className="qr-placeholder" style={{ margin: '0 auto 16px auto' }}>
-                  <div style={{ fontSize: '60px', marginBottom: '16px' }}>📱</div>
-                  <div style={{ fontSize: '14px', color: '#6b7280' }}>QR Code Placeholder</div>
-                  <div style={{ fontSize: '12px', color: '#9ca3af', marginTop: '8px', fontFamily: 'monospace' }}>
-                    self://fingerprint/{Date.now()}
+          {isAuthenticated && userAddress && selfApp && !recoveryBound &&
+              <div className="card" style={{ opacity: !isAuthenticated ? 0.5 : 1 }}>
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="icon-container icon-purple">
+                    <svg style={{ width: '24px', height: '24px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
                   </div>
+                  <h2 className="text-2xl font-semibold text-gray-900">Link Self Passport</h2>
                 </div>
-                <p style={{ color: '#4b5563', fontSize: '14px' }}>
-                  Scan this code using your Self App to authorize this device for recovery.
-                </p>
+
+                <div className="text-center">
+                  <SelfQRcodeWrapper
+                      selfApp={selfApp}
+                      onSuccess={() => {
+                        console.log('Verification successful');
+                        // Perform actions after successful verification
+                        setRecoveryBound(true);
+                      }}
+                      onError={(err) => console.log(err)}
+                  />
+                  <p style={{ color: '#4b5563', fontSize: '14px' }}>
+                    Scan this code using your Self App to authorize this device for recovery.
+                  </p>
+                </div>
               </div>
-            )}
-          </div>
+          }
+
 
           {/* Final Step: Success */}
           {recoveryBound && (
@@ -152,7 +155,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
               border: '1px solid #bbf7d0'
             }}>
               <div style={{ fontSize: '60px', marginBottom: '24px' }}>🎉</div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">You're ready!</h2>
+              <h2 className="text-3xl text-gray-400 font-bold  mb-4">You're ready!</h2>
               <p style={{ color: '#4b5563', marginBottom: '32px' }}>
                 Your wallet has been successfully created and configured for recovery.
               </p>
