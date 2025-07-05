@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react'
 import {useCreateWallet, useLogin, usePrivy, useSignAuthorization, useWallets} from "@privy-io/react-auth";
-import {createPublicClient, createWalletClient, custom, EIP1193Provider, Hex, http} from "viem";
+import {createPublicClient, createWalletClient, custom, EIP1193Provider, Hex, http, toFunctionSelector} from "viem";
 import {QueryClient, useMutation, useQuery} from "@tanstack/react-query";
 import { celoAlfajores} from "viem/chains";
 import {createKernelAccount, createKernelAccountClient, createZeroDevPaymasterClient} from "@zerodev/sdk";
@@ -9,6 +9,8 @@ import {getEntryPoint, KERNEL_V3_3} from "@zerodev/sdk/constants";
 import {KernelVersionToAddressesMap} from "@zerodev/sdk/constants";
 
 import {encodeFunctionData, formatUnits, parseUnits} from "viem";
+import {toSimple7702SmartAccount} from "viem/account-abstraction";
+import {toSimpleSmartAccount} from "permissionless/accounts";
 
 export type EmbeddedWallet = {
   address: `0x${string}`;
@@ -110,10 +112,34 @@ function App() {
         chainId: celoAlfajores.id,
       });
 
+      // const acc2 = await toSimpleSmartAccount({
+      //   client: celoTestnetPublicClient,
+      //   owner: privyAccount,
+      //   eip7702: true,
+      //   factoryAddress: kernelAddresses.accountFactoryAddress,
+      //
+      // })
+      // const acc = await toSimple7702SmartAccount({client:celoTestnetPublicClient, owner: privyAccount,})
+
+      const recoveryExecutorAddress = '0xe884C2868CC82c16177eC73a93f7D9E6F3A5DC6E'
+      const recoveryExecutorFunction = 'function doRecovery(address _validator, bytes calldata _data)'
+      const recoveryExecutorSelector = toFunctionSelector(recoveryExecutorFunction)
+
+
+
+
       const kernelAccount = await createKernelAccount(celoTestnetPublicClient, {
         eip7702Account: privyAccount,
         entryPoint,
         kernelVersion,
+        plugins: {
+          sudo: sudoValidator,
+          regular: guardianValidator,
+          action: {
+            address: recoveryExecutorAddress,
+            selector: recoveryExecutorSelector,
+          },
+        },
         eip7702Auth: authorization,
       });
 
