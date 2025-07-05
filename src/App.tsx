@@ -1,11 +1,11 @@
 import React, {useEffect, useMemo, useState} from 'react'
 import {useCreateWallet, useLogin, usePrivy, useSignAuthorization, useWallets} from "@privy-io/react-auth";
-import {concatHex, createPublicClient, createWalletClient, custom, decodeEventLog, EIP1193Provider, Hex, http, parseAbi, zeroAddress} from "viem";
+import {createPublicClient, createWalletClient, custom, EIP1193Provider, Hex, http} from "viem";
 import {QueryClient, useMutation, useQuery} from "@tanstack/react-query";
 import { celoAlfajores} from "viem/chains";
-import {createKernelAccount, createKernelAccountClient, createZeroDevPaymasterClient, KernelV3_1AccountAbi, KernelV3_3AccountAbi} from "@zerodev/sdk";
+import {createKernelAccount, createKernelAccountClient, createZeroDevPaymasterClient} from "@zerodev/sdk";
 import {signerToEcdsaValidator} from "@zerodev/ecdsa-validator";
-import {getEntryPoint, KERNEL_V3_3_BETA, PLUGIN_TYPE, VALIDATOR_TYPE} from "@zerodev/sdk/constants";
+import {getEntryPoint, KERNEL_V3_3} from "@zerodev/sdk/constants";
 import {KernelVersionToAddressesMap} from "@zerodev/sdk/constants";
 
 import {encodeFunctionData, formatUnits, parseUnits} from "viem";
@@ -19,15 +19,12 @@ export const celoAlfajoresBundlerRpc = `https://rpc.zerodev.app/api/v3/${PROJECT
 export const celoAlfajoresPaymasterRpc = `https://rpc.zerodev.app/api/v3/${PROJECT_ID}/chain/44787`;
 
 export const entryPoint = getEntryPoint("0.7");
-export const kernelVersion = KERNEL_V3_3_BETA;
+export const kernelVersion = KERNEL_V3_3;
 export const kernelAddresses = KernelVersionToAddressesMap[kernelVersion];
-// export const ZERODEV_TOKEN_ADDRESS = "0xB763277E5139fB8Ac694Fb9ef14489ec5092750c";
-// export const ZERODEV_DECIMALS = 6;
+export const ZERODEV_TOKEN_ADDRESS = "0xB763277E5139fB8Ac694Fb9ef14489ec5092750c";
+export const ZERODEV_DECIMALS = 6;
 export const EXPLORER_URL = celoAlfajores.blockExplorers.default.url;
 
-const identifierEmittedAbi = parseAbi([
-  "event IdentifierEmitted(bytes id, address indexed kernel)",
-])
 
 function App() {
 
@@ -113,63 +110,18 @@ function App() {
         chainId: celoAlfajores.id,
       });
 
-
-      // simple executor
-      // 0xeb8c509a2a99b104247502d9ba37811fe0f6de0e
-
-      console.log('create kernel account')
       const kernelAccount = await createKernelAccount(celoTestnetPublicClient, {
-        // plugins: {sudo: ecdsaValidator,},
         eip7702Account: privyAccount,
         entryPoint,
         kernelVersion,
-        // initConfig: [
-        //   encodeFunctionData({
-        //     abi: KernelV3_3AccountAbi,
-        //     functionName: "installModule",
-        //     args: [
-        //       BigInt(PLUGIN_TYPE.EXECUTOR),
-        //       "0xeb8c509a2a99b104247502d9ba37811fe0f6de0e",
-        //       "0xb33f"
-        //       // [
-        //       //   concatHex([
-        //       //     VALIDATOR_TYPE.SECONDARY,
-        //       //     "0x5016E7968C160f62345a535f767EC7C29c851225",
-        //       //   ]),
-        //       // ],
-        //       // [{ nonce: 1, hook: zeroAddress }],
-        //       // // Identifier
-        //       // ["0xb33f"],
-        //       // ["0x"],
-        //     ],
-        //   }),
-        // ],
-        // pluginMigrations: [
-        //   {
-        //     address: "0xEB8C509A2A99B104247502d9ba37811fE0f6DE0E",
-        //     type: PLUGIN_TYPE.EXECUTOR,
-        //     // Identifier
-        //     data: "0xb33f",
-        //   },
-        // ],
         eip7702Auth: authorization,
       });
-      console.log("Kernel account:", kernelAccount.address)
-
 
       const kernelAccountClient = createKernelAccountClient({
         account: kernelAccount,
         chain: celoAlfajores,
         bundlerTransport: http(celoAlfajoresBundlerRpc),
         paymaster: celoTestnetPaymasterClient,
-        // paymaster: {
-        //   getPaymasterData: (userOperation) => {
-        //     return celoTestnetPaymasterClient.sponsorUserOperation({
-        //       userOperation,
-        //     })
-        //   }
-        // },
-        // paymaster: celoTestnetPaymasterClient,
         client: celoTestnetPublicClient,
       });
 
@@ -242,83 +194,25 @@ function App() {
       if (!kernelClients?.kernelAccountClient?.account) throw new Error("No kernel client found");
 
       const kernelAccountClient = kernelClients?.kernelAccountClient;
-      // const userOpHash = await kernelAccountClient.sendUserOperation({
-      //   callData: await kernelAccountClient.account?.encodeCalls([
-      //     {
-      //       to: zeroAddress,
-      //       value: BigInt(0),
-      //       data: "0x",
-      //     },
-      //   ]),
-      // })
-      //
-      // console.log("userOp hash:", userOpHash)
-      // const _receipt = await kernelAccountClient.waitForUserOperationReceipt({
-      //   hash: userOpHash,
-      // })
-      // console.log({ txHash: _receipt.receipt.transactionHash })
-      //
-      // for (const log of _receipt.logs) {
-      //   try {
-      //     const event = decodeEventLog({
-      //       abi: identifierEmittedAbi,
-      //       ...log,
-      //     })
-      //     if (event.eventName === "IdentifierEmitted") {
-      //       console.log({ id: event.args.id, kernel: event.args.kernel })
-      //     }
-      //   } catch { }
-      // }
-      // console.log("userOp completed")
-
       return kernelAccountClient.sendTransaction({
         account: kernelAccountClient.account,
-        to: zeroAddress,
+        to: "0x406F912c5a5B6137Be1153ec71DD9c03624FF3E6",
         value: BigInt(0),
-        data: "0x",
+        data: encodeFunctionData({
+          abi: [
+            {
+              name: "setScope",
+              type: "function",
+              inputs: [
+                {name: "_scope", type: "uint256"},
+              ],
+            },
+          ],
+          functionName: "setScope",
+          args: ["14083505874396192783076663245664044579645088232806584587291798726989971910781"],
+        }),
         chain: celoAlfajores,
       });
-
-
-      // return kernelAccountClient.sendTransaction({
-      //   account: kernelAccountClient.account,
-      //   to: ZERODEV_TOKEN_ADDRESS,
-      //   value: BigInt(0),
-      //   data: encodeFunctionData({
-      //     abi: [
-      //       {
-      //         name: "mint",
-      //         type: "function",
-      //         inputs: [
-      //           { name: "to", type: "address" },
-      //           { name: "amount", type: "uint256" },
-      //         ],
-      //       },
-      //     ],
-      //     functionName: "mint",
-      //     args: [kernelAccountClient.account.address, parseUnits("10", ZERODEV_DECIMALS)],
-      //   }),
-      //   chain: celoAlfajores,
-      // });
-      // return kernelAccountClient.sendTransaction({
-      //   account: kernelAccountClient.account,
-      //   to: "0x406F912c5a5B6137Be1153ec71DD9c03624FF3E6",
-      //   value: BigInt(0),
-      //   data: encodeFunctionData({
-      //     abi: [
-      //       {
-      //         name: "setScope",
-      //         type: "function",
-      //         inputs: [
-      //           {name: "_scope", type: "uint256"},
-      //         ],
-      //       },
-      //     ],
-      //     functionName: "setScope",
-      //     args: ["14083505874396192783076663245664044579645088232806584587291798726989971910781"],
-      //   }),
-      //   chain: celoAlfajores,
-      // });
     },
     onSuccess: (data) => {
       console.log(data);
