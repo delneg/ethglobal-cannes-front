@@ -3,10 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { EIP1193Provider } from 'viem';
 import Header from './Header';
 
+
+interface User {
+  name:string;
+  email:string;
+}
 interface HomePageProps {
   isAuthenticated: boolean;
-  user: any;
-  userAddress?: string | `0x${string}`;
+  user: User | null;
+  userAddress?: string;
   onAuth: () => void;
   ready: boolean;
   eip1193Provider?: EIP1193Provider;
@@ -23,7 +28,7 @@ const HomePage: React.FC<HomePageProps> = ({
   const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
-    // Проверяем, существует ли изображение
+    
     const img = new Image();
     img.onload = () => setImageLoaded(true);
     img.onerror = () => setImageLoaded(false);
@@ -41,12 +46,7 @@ const HomePage: React.FC<HomePageProps> = ({
       />
 
       {/* Hero Section */}
-      <main style={{
-        position: 'relative',
-        minHeight: 'calc(100vh - 89px)', // Вычитаем высоту header
-        display: 'flex',
-        alignItems: 'center'
-      }}>
+      <main className="main">
         <div className="container">
         {/* Decorative Stars */}
         <div className="hero-star" style={{ position: 'absolute', top: '5%', left: '5%', zIndex: 1 }}>
@@ -408,4 +408,4 @@ const HomePage: React.FC<HomePageProps> = ({
   );
 };
 
-export default HomePage;
+export default HomePage; 
