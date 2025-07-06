@@ -101,17 +101,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
       {/* Main Content */}
       <main className="container py-12">
         {/* Page Header */}
-        <div className="text-center mb-12">
-          <div style={{
-            fontSize: '14px',
-            fontWeight: '500',
-            color: '#6b7280',
-            textTransform: 'uppercase',
-            letterSpacing: '0.1em',
-            marginBottom: '8px'
-          }}>
-            Step 1 of 3
-          </div>
+        <div className="text-center mb-12"> 
           <h1 className="text-4xl font-bold text-gray-900">
             Create Wallet + Bind Passport
           </h1>
