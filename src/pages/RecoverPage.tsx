@@ -1,11 +1,11 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import {createWalletClient, EIP1193Provider, http} from 'viem';
+import {createPublicClient, createWalletClient, EIP1193Provider, http} from 'viem';
 import Header from '../components/Header';
 import {SelfApp, SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
 import {useSignMessage} from '@privy-io/react-auth';
 import {useClientContext} from "../context/ClientContext.tsx";
-import {recoverTestTx, getExplorerUrl, getSmartAccountImplementationAddress} from "../utils/contractStuff.ts";
+import {recoverTestTx, getExplorerUrl, getSmartAccountImplementationAddress, initializeRecoveryMode} from "../utils/contractStuff.ts";
 import { privateKeyToAccount } from 'viem/accounts';
 import {celoAlfajores} from "viem/chains";
 import {useMutation} from "@tanstack/react-query";
@@ -32,10 +32,10 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
 }) => {
   const navigate = useNavigate();
   const [ownershipTransferred, setOwnershipTransferred] = useState(false);
-  const [messageSigned, setMessageSigned] = useState(false);
+  const [initiatedRecovery, setInitiatedRecovery] = useState(false);
   const [transactionURL, setTransactionURL] = useState("");
 
-  const {contractAddress} = useClientContext();
+  // const {contractAddress} = useClientContext();
 
   const handleConnectNewWallet = () => {
     onAuth();
@@ -62,6 +62,35 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
     }
   });
 
+
+  const initiateRecoveryMutation = useMutation({
+    mutationFn: async () => {
+      const eoa = privateKeyToAccount(beneficiaryPK);
+      const walletClient = createWalletClient({
+        account: eoa,
+        chain: celoAlfajores,
+        transport: http(),
+      });
+      const publicClient = createPublicClient({
+        chain: celoAlfajores,
+        transport: http()
+      })
+      const tx = await initializeRecoveryMode(walletClient, oldAddress, beneficiaryAddress)
+      await publicClient.waitForTransactionReceipt({ hash: tx });
+      console.log("Initiate recovery tx url", getExplorerUrl(tx))
+      return tx;
+    },
+    onSuccess: (tx) => {
+      setInitiatedRecovery(true);
+      // setTransactionURL(getExplorerUrl(tx));
+    },
+    onError: (error) => {
+      console.error('Error sending initiate recovery transaction:', error);
+      // You can add additional error handling here if needed
+    }
+  });
+
+
   const [selfApp, setSelfApp] = useState<SelfApp | undefined>(undefined);
 
 
@@ -72,7 +101,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
 
     async function load() {
       setSelfApp(undefined);
-      // const contractAddress = await getSmartAccountImplementationAddress(oldAddress);
+      const contractAddress = await getSmartAccountImplementationAddress(oldAddress);
       if (!active) { return }
       const app = new SelfAppBuilder({
         appName: "My App (Dev)",
@@ -82,7 +111,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
         userId: oldAddress,
         userIdType: "hex",
         version: 2,
-        userDefinedData: oldAddress,
+        userDefinedData: beneficiaryAddress,
         disclosures: {
           minimumAge: 11,
           nationality: true,
@@ -159,7 +188,32 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
               <h2 className="text-2xl font-semibold text-gray-900">Start Recovery Process</h2>
             </div>
 
-            {selfApp && userAddress && !ownershipTransferred &&
+            {!initiatedRecovery && (
+              <div>
+                <button
+                  onClick={() => initiateRecoveryMutation.mutate()}
+                  disabled={!isAuthenticated || initiateRecoveryMutation.isPending}
+                  className="btn-primary"
+                  style={{
+                    opacity: (!isAuthenticated || initiateRecoveryMutation.isPending) ? 0.5 : 1,
+                    cursor: (!isAuthenticated || initiateRecoveryMutation.isPending) ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {initiateRecoveryMutation.isPending ? 'Loading...' : 'Initiate Recovery'}
+                </button>
+                {initiateRecoveryMutation.isError && (
+                  <div style={{
+                    color: '#ef4444',
+                    fontSize: '14px',
+                    marginTop: '8px',
+                    textAlign: 'center'
+                  }}>
+                    Failed to initialize. Please try again.
+                  </div>
+                )}
+              </div>
+            )}
+            {selfApp && userAddress && !ownershipTransferred && initiatedRecovery &&
                 <div className="text-center">
                   <SelfQRcodeWrapper
                       selfApp={selfApp}

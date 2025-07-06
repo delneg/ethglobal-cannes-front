@@ -21,6 +21,7 @@ interface SetupRecoveryPageProps {
 
 const userPkVite =  import.meta.env.VITE_USER_PK;
 const oldAddress = import.meta.env.VITE_USER_ADDRESS;
+const beneficiaryAddress = import.meta.env.VITE_BENEFICIARY_ADDRESS;
 
 const pkUser = privateKeyToAccount(userPkVite)
 
@@ -71,8 +72,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
       userId: oldAddress,
       userIdType: "hex",
       version: 2,
-      //TODO: cange data
-      userDefinedData: "jfklds",
+      userDefinedData: beneficiaryAddress,
       disclosures: {
         minimumAge: 11,
         nationality: true,

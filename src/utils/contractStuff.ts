@@ -23,6 +23,7 @@ export const IMPLEMENTATION_ABI = parseAbi([
   "function isInitialized() public view returns (bool)",
   "function recover(address to, uint256 value, bytes calldata data) external",
   "function wrapper() public view returns (address)",
+  "function proposeRecovery(address _newSigner) public"
 ])
 
 
@@ -43,7 +44,7 @@ export const calculateContractAddress = async (deployerAddress: `0x${string}`) =
   // Calculate next contract address
   const contractAddress = getContractAddress({
     from: deployerAddress,
-    nonce: BigInt(nonce)
+    nonce: BigInt(nonce+1)
   })
 
   return contractAddress
@@ -75,6 +76,17 @@ export async function initializeAccount(walletClient: WalletClient, userAddress:
   } as any)
   console.log('Transaction hash:', hash)
   return hash;
+}
+
+export async function initializeRecoveryMode(walletClient: WalletClient, userAddress: string, beneficiaryAddress: string) {
+  const initiateRecoveryTxHash = await walletClient.writeContract({
+    abi: IMPLEMENTATION_ABI,
+    address: userAddress as any,
+    functionName: "proposeRecovery",
+    args: [beneficiaryAddress as any]
+  } as any)
+  console.log('Recovery proposed: ', initiateRecoveryTxHash)
+  return initiateRecoveryTxHash
 }
 
 export async function recoverTestTx(walletClient: WalletClient, userAddress: string, beneficiaryAddress: string) {
