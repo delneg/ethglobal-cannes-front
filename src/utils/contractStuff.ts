@@ -2,12 +2,20 @@ import {Account, createPublicClient, getContractAddress, http, parseAbi, Private
 import { celoAlfajores } from "viem/chains";
 import {hashEndpointWithScope} from "./scopeGenerator.ts";
 
+
+export const EXPLORER_URL = "https://alfajores.celoscan.io"
+
+export function getExplorerUrl(tx: string) {
+  return `${EXPLORER_URL}/tx/${tx}`
+}
 export const IMPLEMENTATION_ABI = parseAbi([
   "function initialize(uint256 scope)",
   "function isInitialized() public view returns (bool)",
   "function recover(address to, uint256 value, bytes calldata data) external",
   "function wrapper() public view returns (address)",
 ])
+
+
 
 export const IMPLEMENTATION_ADDRESS = import.meta.env.VITE_IMPLEMENTATION_ADDRESS
 export const SCOPE_SEED = "my-app-dev"
@@ -70,4 +78,19 @@ export async function dummyTestTx(walletClient: WalletClient, userAddress: strin
   return hash
 }
 
+export async function getSmartAccountImplementationAddress(userAddress: string) {
+  const publicClient = createPublicClient({
+    chain: celoAlfajores,
+    transport: http()
+  })
+  const value = await publicClient.readContract({
+    abi: IMPLEMENTATION_ABI,
+    functionName: 'wrapper',
+    args: [],
+    address: userAddress as any,
+  })
+  console.log('current wrapper: ', value)
+
+  return value;
+}
 

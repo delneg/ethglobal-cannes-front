@@ -27,7 +27,7 @@ export const kernelVersion = KERNEL_V3_3;
 export const kernelAddresses = KernelVersionToAddressesMap[kernelVersion];
 export const ZERODEV_TOKEN_ADDRESS = "0xB763277E5139fB8Ac694Fb9ef14489ec5092750c";
 export const ZERODEV_DECIMALS = 6;
-export const EXPLORER_URL = celoAlfajores.blockExplorers.default.url;
+// export const EXPLORER_URL = celoAlfajores.blockExplorers.default.url;
 
 function App() {
 

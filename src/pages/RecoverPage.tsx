@@ -5,10 +5,9 @@ import Header from '../components/Header';
 import {SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
 import {useSignMessage} from '@privy-io/react-auth';
 import {useClientContext} from "../context/ClientContext.tsx";
-import {dummyTestTx} from "../utils/contractStuff.ts";
+import {dummyTestTx, getExplorerUrl} from "../utils/contractStuff.ts";
 import { privateKeyToAccount } from 'viem/accounts';
 import {celoAlfajores} from "viem/chains";
-import {EXPLORER_URL} from "./CreateWalletPage.tsx";
 
 interface RecoverPageProps {
   isAuthenticated: boolean;
@@ -31,24 +30,17 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   ready
 }) => {
   const navigate = useNavigate();
-  // const [recoveryStarted, setRecoveryStarted] = useState(false);
   const [ownershipTransferred, setOwnershipTransferred] = useState(false);
   const [messageSigned, setMessageSigned] = useState(false);
-  const [signature, setSignature] = useState("");
+  const [transactionURL, setTransactionURL] = useState("");
   const {contractAddress, setContractAddress} = useClientContext();
 
 
-  const {signMessage} = useSignMessage();
   const handleConnectNewWallet = () => {
     onAuth();
   };
 
-  // const handleStartRecovery = () => {
-  //   setRecoveryStarted(true);
-  // };
-
-
-  const handleSignMessage = async () => {
+  const handleSendTx = async () => {
     const eoa = privateKeyToAccount(beneficiaryPK);
     const walletClient = createWalletClient({
       account: eoa,
@@ -56,11 +48,8 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
       transport: http(),
     });
     const tx = await dummyTestTx(walletClient, oldAddress, beneficiaryAddress)
-    console.log("Acc initialized", `${EXPLORER_URL}/tx/${tx}`)
-    //
-    // const {signature} = await signMessage({message: 'ETHGlobal Cannes 2025'}, {address: userAddress});
-    // setSignature(signature);
-    // setMessageSigned(true);
+    console.log("Acc initialized", getExplorerUrl(tx))
+    setTransactionURL(getExplorerUrl(tx));
   };
 
 
@@ -175,7 +164,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
             <div className="card">
               <div className="flex items-center gap-4 mb-6">
                 <div className="icon-container icon-orange">
-                  <span style={{ color: 'white', fontWeight: 'bold' }}>4</span>
+                  <span style={{ color: 'white', fontWeight: 'bold' }}>3</span>
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">Final Verification</h2>
               </div>
@@ -184,13 +173,13 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                Send a transaction to confirm you have full control of the recovered wallet.
               </p>
 
-              {messageSigned ? (
+              {!!transactionURL ? (
                 <div className="text-center">
                   <div className="status-success mb-6">
                     <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    <span style={{ fontWeight: '500' }}>Message signed successfully!</span>
+                    <span style={{ fontWeight: '500' }}>Transaction sent successfully!</span>
                   </div>
                   <div style={{
                     background: '#f9fafb',
@@ -198,8 +187,10 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                     padding: '24px',
                     border: '1px solid #e5e7eb'
                   }}>
-                    <p style={{ fontSize: '14px', color: '#4b5563', marginBottom: '8px' }}>Signed Message:</p>
-                    <p style={{
+                    <p style={{ fontSize: '14px', color: '#4b5563', marginBottom: '8px' }}>Transaction URL</p>
+                    <a target="_blank"
+                    href={transactionURL}
+                      style={{
                       fontFamily: 'monospace',
                       fontSize: '14px',
                       background: 'white',
@@ -208,23 +199,23 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                       border: '1px solid #e5e7eb',
                       color: '#4b5563'
                     }}>
-                      {signature}
-                    </p>
+                      {transactionURL}
+                    </a>
                   </div>
                 </div>
               ) : (
                 <button
-                  onClick={handleSignMessage}
+                  onClick={handleSendTx}
                   className="btn-primary"
                 >
-                  Sign "ETHGlobal Cannes 2025"
+                  Send Test Transaction
                 </button>
               )}
             </div>
           )}
 
           {/* Success Message */}
-          {messageSigned && (
+          {!!transactionURL && (
             <div className="card text-center" style={{
               background: 'linear-gradient(135deg, #f0fdf4 0%, #eff6ff 100%)',
               border: '1px solid #bbf7d0'

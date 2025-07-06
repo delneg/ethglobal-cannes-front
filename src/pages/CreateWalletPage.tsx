@@ -4,7 +4,7 @@ import {createWalletClient, EIP1193Provider, http} from 'viem';
 import Header from '../components/Header';
 import {SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
 import {celoAlfajores} from "viem/chains";
-import {calculateContractAddress, getOmnichainAuthorization, initializeAccount} from "../utils/contractStuff.ts";
+import {calculateContractAddress, getExplorerUrl, getOmnichainAuthorization, initializeAccount} from "../utils/contractStuff.ts";
 import {privateKeyToAccount} from "viem/accounts";
 import {useClientContext} from "../context/ClientContext.tsx";
 
@@ -17,7 +17,6 @@ interface SetupRecoveryPageProps {
   eip1193Provider?: EIP1193Provider;
 }
 
-export const EXPLORER_URL = celoAlfajores.blockExplorers.default.url;
 
 const userPkVite =  import.meta.env.VITE_USER_PK;
 const oldAddress = import.meta.env.VITE_USER_ADDRESS;
@@ -52,7 +51,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
     const contractAddress = await calculateContractAddress(userAddress as any)
     setContractAddress(contractAddress);
     const acc = await initializeAccount(walletClient, pkUser.address, auth);
-    console.log("Acc initialized", `${EXPLORER_URL}/tx/${acc}`)
+    console.log("Acc initialized", getExplorerUrl(acc))
     setBoundCode(true);
   }
 
@@ -168,7 +167,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
                 ) : (
                   <div className="text-center">
                     <SelfQRcodeWrapper
-                      selfApp={selfApp}
+                      selfApp={selfApp!}
                       onSuccess={() => {
                         console.log('Verification successful');
                         // Perform actions after successful verification
