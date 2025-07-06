@@ -39,6 +39,7 @@ export async function getOmnichainAuthorization(user: PrivateKeyAccount) {
   })
   return authorization;
 }
+
 export async function initializeAccount(walletClient: WalletClient, userAddress: string, authorization: SignAuthorizationReturnType) {
   const contractAddress = await calculateContractAddress(userAddress as any)
   console.log('Predicted contract address: ', contractAddress )
@@ -68,3 +69,5 @@ export async function dummyTestTx(walletClient: WalletClient, userAddress: strin
   console.log('Dummy tx. Should transfer 1 wei:', hash)
   return hash
 }
+
+

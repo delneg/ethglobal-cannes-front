@@ -1,9 +1,14 @@
 import React, {useMemo, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import { EIP1193Provider } from 'viem';
+import {createWalletClient, EIP1193Provider, http} from 'viem';
 import Header from '../components/Header';
 import {SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
 import {useSignMessage} from '@privy-io/react-auth';
+import {useClientContext} from "../context/ClientContext.tsx";
+import {dummyTestTx} from "../utils/contractStuff.ts";
+import { privateKeyToAccount } from 'viem/accounts';
+import {celoAlfajores} from "viem/chains";
+import {EXPLORER_URL} from "./CreateWalletPage.tsx";
 
 interface RecoverPageProps {
   isAuthenticated: boolean;
@@ -14,8 +19,9 @@ interface RecoverPageProps {
   eip1193Provider?: EIP1193Provider;
 }
 
-const signerRegistry = "0xCa9359C1e71985b9a8CFd6dADd140892C4ee03FF"
-const oldAddress = "0x743A88896DB4212A8346f72163C5B615f73e30f4"
+const beneficiaryPK =  import.meta.env.VITE_PK_BENEFICIARY;
+const oldAddress = import.meta.env.VITE_USER_ADDRESS;
+const beneficiaryAddress = import.meta.env.VITE_BENEFICIARY_ADDRESS;
 
 const RecoverPage: React.FC<RecoverPageProps> = ({
   isAuthenticated,
@@ -29,6 +35,8 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   const [ownershipTransferred, setOwnershipTransferred] = useState(false);
   const [messageSigned, setMessageSigned] = useState(false);
   const [signature, setSignature] = useState("");
+  const {contractAddress, setContractAddress} = useClientContext();
+
 
   const {signMessage} = useSignMessage();
   const handleConnectNewWallet = () => {
@@ -40,20 +48,31 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   // };
 
 
-  const handleSignMessage =async  () => {
-    const {signature} = await signMessage({message: 'ETHGlobal Cannes 2025'}, {address: userAddress});
-    setSignature(signature);
-    setMessageSigned(true);
+  const handleSignMessage = async () => {
+    const eoa = privateKeyToAccount(beneficiaryPK);
+    const walletClient = createWalletClient({
+      account: eoa,
+      chain: celoAlfajores,
+      transport: http(),
+    });
+    const tx = await dummyTestTx(walletClient, oldAddress, beneficiaryAddress)
+    console.log("Acc initialized", `${EXPLORER_URL}/tx/${tx}`)
+    //
+    // const {signature} = await signMessage({message: 'ETHGlobal Cannes 2025'}, {address: userAddress});
+    // setSignature(signature);
+    // setMessageSigned(true);
   };
 
 
   const selfApp = useMemo(() => {
     if (!userAddress || userAddress == '') return null;
+    if (!contractAddress || contractAddress == '') return null;
+
     console.log("Creating self app", userAddress, 'userId', oldAddress);
     return new SelfAppBuilder({
       appName: "My App (Dev)",
       scope: "my-app-dev",
-      endpoint: signerRegistry,
+      endpoint: contractAddress,
       endpointType: "staging_celo", // Use testnet
       userId: oldAddress,
       userIdType: "hex",
@@ -64,7 +83,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
         nationality: true,
       }
     }).build()
-  }, [userAddress]);
+  }, [userAddress, contractAddress]);
 
 
   return (
@@ -151,7 +170,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
           </div>
 
 
-          {/* Step 4: Sign Message */}
+          {/* Step 3: Test transaction */}
           {ownershipTransferred && (
             <div className="card">
               <div className="flex items-center gap-4 mb-6">
@@ -162,7 +181,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
               </div>
 
               <p style={{ color: '#4b5563', marginBottom: '24px', lineHeight: '1.6' }}>
-                Sign a message to confirm you have full control of the recovered wallet.
+               Send a transaction to confirm you have full control of the recovered wallet.
               </p>
 
               {messageSigned ? (
@@ -186,7 +205,8 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                       background: 'white',
                       padding: '12px',
                       borderRadius: '6px',
-                      border: '1px solid #e5e7eb'
+                      border: '1px solid #e5e7eb',
+                      color: '#4b5563'
                     }}>
                       {signature}
                     </p>

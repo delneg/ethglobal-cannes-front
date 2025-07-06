@@ -29,7 +29,7 @@ const Header: React.FC<HeaderProps> = ({
         const height = headerRef.current.offsetHeight;
         setHeaderHeight(height);
         document.documentElement.style.setProperty('--header-height', `${height}px`);
-        console.log('📏 Header height:', height, 'px');
+        // console.log('📏 Header height:', height, 'px');
       }
     };
 

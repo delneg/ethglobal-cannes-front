@@ -7,6 +7,8 @@ export interface ClientContextType {
   setUserAddress: React.Dispatch<React.SetStateAction<string>>;
   eip1193Provider: any;
   setEip1193Provider: React.Dispatch<React.SetStateAction<any>>;
+  contractAddress: string;
+  setContractAddress: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const ClientContext = createContext<ClientContextType | undefined>(undefined);
@@ -22,11 +24,12 @@ export const ClientContextProvider: React.FC<PropsWithChildren> = ({children}) =
 
   const [userAddress, setUserAddress] = useState<string>("");
 
+  const [contractAddress, setContractAddress] = useState<string>("");
   const [eip1193Provider, setEip1193Provider] = useState<EIP1193Provider | undefined>(undefined);
 
   return (
     <ClientContext.Provider value={{
-      userAddress, setUserAddress, eip1193Provider, setEip1193Provider,
+      userAddress, setUserAddress, eip1193Provider, setEip1193Provider, contractAddress, setContractAddress
     }}>
       {children}
     </ClientContext.Provider>

@@ -1,11 +1,12 @@
 import React, {useMemo, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import {EIP1193Provider, http} from 'viem';
+import {createWalletClient, EIP1193Provider, http} from 'viem';
 import Header from '../components/Header';
 import {SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
-import {createZeroDevPaymasterClient} from "@zerodev/sdk";
 import {celoAlfajores} from "viem/chains";
-import {celoAlfajoresPaymasterRpc} from "../App.tsx";
+import {calculateContractAddress, getOmnichainAuthorization, initializeAccount} from "../utils/contractStuff.ts";
+import {privateKeyToAccount} from "viem/accounts";
+import {useClientContext} from "../context/ClientContext.tsx";
 
 interface SetupRecoveryPageProps {
   isAuthenticated: boolean;
@@ -16,8 +17,12 @@ interface SetupRecoveryPageProps {
   eip1193Provider?: EIP1193Provider;
 }
 
-const passportRegistry = "0xDe457B24f35D8c72Aa3535c3D29edfBaEDB9A19E"
+export const EXPLORER_URL = celoAlfajores.blockExplorers.default.url;
 
+const userPkVite =  import.meta.env.VITE_USER_PK;
+const oldAddress = import.meta.env.VITE_USER_ADDRESS;
+
+const pkUser = privateKeyToAccount(userPkVite)
 
 const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
   isAuthenticated,
@@ -29,19 +34,37 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
 }) => {
   const navigate = useNavigate();
   const [recoveryBound, setRecoveryBound] = useState(false);
+  const [boundCode, setBoundCode] = useState(false);
 
+  const {contractAddress, setContractAddress} = useClientContext();
   const handleConnectWallet = () => {
     onAuth();
   };
 
+  const bindCode = async () => {
+    const auth = await getOmnichainAuthorization(pkUser);
+    const walletClient = createWalletClient({
+      account: pkUser,
+      chain: celoAlfajores,
+      transport: http(),
+    });
+    console.log('initializing user', pkUser.address)
+    const contractAddress = await calculateContractAddress(userAddress as any)
+    setContractAddress(contractAddress);
+    const acc = await initializeAccount(walletClient, pkUser.address, auth);
+    console.log("Acc initialized", `${EXPLORER_URL}/tx/${acc}`)
+    setBoundCode(true);
+  }
+
   const selfApp = useMemo(() => {
     if (!userAddress || userAddress == '') return null;
+    if (!contractAddress || contractAddress == '') return null;
     return new SelfAppBuilder({
       appName: "My App (Dev)",
       scope: "my-app-dev",
-      endpoint: passportRegistry,
+      endpoint: contractAddress,
       endpointType: "staging_celo", // Use testnet
-      userId: userAddress,
+      userId: oldAddress,
       userIdType: "hex",
       version: 2,
       //TODO: cange data
@@ -51,7 +74,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
         nationality: true,
       }
     }).build()
-  }, [userAddress]);
+  }, [userAddress, contractAddress]);
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)' }}>
@@ -119,7 +142,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
           </div>
 
           {/* Step 2: Link Self Passport */}
-          {isAuthenticated && userAddress && selfApp && !recoveryBound &&
+          {isAuthenticated && userAddress && !recoveryBound &&
               <div className="card" style={{ opacity: !isAuthenticated ? 0.5 : 1 }}>
                 <div className="flex items-center gap-4 mb-6">
                   <div className="icon-container icon-purple">
@@ -130,8 +153,21 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
                   <h2 className="text-2xl font-semibold text-gray-900">Link Self Passport</h2>
                 </div>
 
-                <div className="text-center">
-                  <SelfQRcodeWrapper
+                {!boundCode ? (
+                  <button
+                    onClick={bindCode}
+                    disabled={!isAuthenticated}
+                    className="btn-primary"
+                    style={{
+                      opacity: !isAuthenticated ? 0.5 : 1,
+                      cursor: !isAuthenticated ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    Show QR for Self App
+                  </button>
+                ) : (
+                  <div className="text-center">
+                    <SelfQRcodeWrapper
                       selfApp={selfApp}
                       onSuccess={() => {
                         console.log('Verification successful');
@@ -139,11 +175,13 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
                         setRecoveryBound(true);
                       }}
                       onError={(err) => console.log(err)}
-                  />
-                  <p style={{ color: '#4b5563', fontSize: '14px' }}>
-                    Scan this code using your Self App to authorize this device for recovery.
-                  </p>
-                </div>
+                    />
+                    <p style={{ color: '#4b5563', fontSize: '14px' }}>
+                      Scan this code using your Self App to authorize this device for recovery.
+                    </p>
+                  </div>
+                )}
+
               </div>
           }
 
