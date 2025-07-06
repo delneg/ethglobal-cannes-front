@@ -59,19 +59,21 @@ const Header: React.FC<HeaderProps> = ({
             style={{ cursor: 'pointer' }}
             onClick={() => navigate('/')}
           >
-            <div className="logo">
-              <span>ZK</span>
-            </div>
-            <span
+            <img
+              src="/logo.png"
+              alt="RecoveryApp Logo"
               style={{
-                marginLeft: '12px',
-                fontSize: '20px',
-                fontWeight: 'bold',
-                color: 'var(--color-text)',
+                // width: '40px',
+                height: '50px',
+                objectFit: 'contain'
               }}
-            >
-              RecoveryApp
-            </span>
+              onError={(e) => {
+                // Fallback к текстовому логотипу если изображение не загрузилось
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling.style.display = 'flex';
+              }}
+            />
+
           </div>
 
           {/* Navigation and Auth Section */}
@@ -88,9 +90,6 @@ const Header: React.FC<HeaderProps> = ({
               }}>
                 {[
                   { id: 'how-it-works', label: 'How it works' },
-                  { id: 'features', label: 'Features' },
-                  { id: 'blogs', label: 'Blogs' },
-                  { id: 'about', label: 'About us' }
                 ].map((item) => (
                   <button
                     key={item.id}
