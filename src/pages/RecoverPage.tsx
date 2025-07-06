@@ -20,7 +20,7 @@ interface RecoverPageProps {
 }
 
 const beneficiaryPK =  import.meta.env.VITE_PK_BENEFICIARY;
-const oldAddress = import.meta.env.VITE_USER_ADDRESS;
+// const oldAddress = import.meta.env.VITE_USER_ADDRESS;
 const beneficiaryAddress = import.meta.env.VITE_BENEFICIARY_ADDRESS;
 
 const RecoverPage: React.FC<RecoverPageProps> = ({
@@ -49,7 +49,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
         chain: celoAlfajores,
         transport: http(),
       });
-      const tx = await recoverTestTx(walletClient, oldAddress, beneficiaryAddress)
+      const tx = await recoverTestTx(walletClient, userAddress!, beneficiaryAddress)
       console.log("Recover tx url", getExplorerUrl(tx))
       return tx;
     },
@@ -75,7 +75,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
         chain: celoAlfajores,
         transport: http()
       })
-      const tx = await initializeRecoveryMode(walletClient, oldAddress, beneficiaryAddress)
+      const tx = await initializeRecoveryMode(walletClient, userAddress!, beneficiaryAddress)
       await publicClient.waitForTransactionReceipt({ hash: tx });
       console.log("Initiate recovery tx url", getExplorerUrl(tx))
       return tx;
@@ -101,14 +101,14 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
 
     async function load() {
       setSelfApp(undefined);
-      const contractAddress = await getSmartAccountImplementationAddress(oldAddress);
+      const contractAddress = await getSmartAccountImplementationAddress(userAddress!);
       if (!active) { return }
       const app = new SelfAppBuilder({
         appName: "My App (Dev)",
         scope: "my-app-dev",
         endpoint: contractAddress,
         endpointType: "staging_celo", // Use testnet
-        userId: oldAddress,
+        userId: userAddress!,
         userIdType: "hex",
         version: 2,
         userDefinedData: beneficiaryAddress,
@@ -119,7 +119,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
       }).build();
       setSelfApp(app);
     }
-  }, [oldAddress])
+  }, [userAddress])
 
 
 

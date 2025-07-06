@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import {createPublicClient, createWalletClient, EIP1193Provider, http} from 'viem';
 import Header from '../components/Header';
 import {SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
-import {calculateContractAddress, getExplorerUrl, getOmnichainAuthorization, initializeAccount} from "../utils/contractStuff.ts";
+import {calculateContractAddress, getExplorerUrl, getOmnichainAuthorization, IMPLEMENTATION_ADDRESS, initializeAccount} from "../utils/contractStuff.ts";
 import {privateKeyToAccount} from "viem/accounts";
 import {useClientContext} from "../context/ClientContext.tsx";
 import {useMutation} from "@tanstack/react-query";
 import {getMockedPaymasterWalletClient} from "../utils/mockPaymaster.ts";
+import {useSign7702Authorization, useSignAuthorization} from "@privy-io/react-auth";
+import {celoAlfajores} from "viem/chains";
 
 interface SetupRecoveryPageProps {
   isAuthenticated: boolean;
@@ -19,11 +21,11 @@ interface SetupRecoveryPageProps {
 }
 
 
-const userPkVite =  import.meta.env.VITE_USER_PK;
-const oldAddress = import.meta.env.VITE_USER_ADDRESS;
+// const userPkVite =  import.meta.env.VITE_USER_PK;
+// const oldAddress = import.meta.env.VITE_USER_ADDRESS;
 const beneficiaryAddress = import.meta.env.VITE_BENEFICIARY_ADDRESS;
 
-const pkUser = privateKeyToAccount(userPkVite)
+// const pkUser = privateKeyToAccount(userPkVite)
 
 const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
   isAuthenticated,
@@ -42,13 +44,19 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
     onAuth();
   };
 
+  const {signAuthorization} = useSign7702Authorization();
+
   const bindCodeMutation = useMutation({
     mutationFn: async () => {
-      const auth = await getOmnichainAuthorization(pkUser);
-      console.log('initializing user', pkUser.address)
+      const auth = await signAuthorization({
+        contractAddress: IMPLEMENTATION_ADDRESS as any,
+        chainId: celoAlfajores.id,
+        nonce: 0,
+      })
+      console.log('initializing user', userAddress)
       const contractAddress = await calculateContractAddress(userAddress as any)
       setContractAddress(contractAddress);
-      const acc = await initializeAccount(getMockedPaymasterWalletClient(), pkUser.address, auth);
+      const acc = await initializeAccount(getMockedPaymasterWalletClient(), userAddress!, auth);
       console.log("Acc initialized", getExplorerUrl(acc))
       return acc;
     },
@@ -69,7 +77,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
       scope: "my-app-dev",
       endpoint: contractAddress,
       endpointType: "staging_celo", // Use testnet
-      userId: oldAddress,
+      userId: userAddress,
       userIdType: "hex",
       version: 2,
       userDefinedData: beneficiaryAddress,

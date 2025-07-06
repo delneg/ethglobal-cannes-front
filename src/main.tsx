@@ -20,7 +20,7 @@ export const config: PrivyClientConfig = {
   // Create embedded wallets for users who don't have a wallet
   embeddedWallets: {
     createOnLogin: 'users-without-wallets',
-    showWalletUIs: false,
+    showWalletUIs: true,
     // extendedCalldataDecoding: true,
     // createOnLogin: 'off', // Anything other than 'off' will not be honored with whitelabel Auth. You must use createWallet from usePrivy()
     // showWalletUIs: false,
