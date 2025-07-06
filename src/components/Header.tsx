@@ -68,9 +68,8 @@ const Header: React.FC<HeaderProps> = ({
                 objectFit: 'contain'
               }}
               onError={(e) => {
-                // Fallback к текстовому логотипу если изображение не загрузилось
                 e.currentTarget.style.display = 'none';
-                e.currentTarget.nextElementSibling.style.display = 'flex';
+                // e.currentTarget.nextElementSibling.style.display = 'flex';
               }}
             />
 
