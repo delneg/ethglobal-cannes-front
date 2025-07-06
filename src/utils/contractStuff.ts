@@ -1,4 +1,14 @@
-import {Account, createPublicClient, getContractAddress, http, parseAbi, PrivateKeyAccount, SignAuthorizationReturnType, WalletClient} from "viem";
+import {
+  Account,
+  createPublicClient,
+  encodeFunctionData,
+  getContractAddress,
+  http,
+  parseAbi,
+  PrivateKeyAccount,
+  SignAuthorizationReturnType,
+  WalletClient
+} from "viem";
 import { celoAlfajores } from "viem/chains";
 import {hashEndpointWithScope} from "./scopeGenerator.ts";
 
@@ -67,12 +77,21 @@ export async function initializeAccount(walletClient: WalletClient, userAddress:
   return hash;
 }
 
-export async function dummyTestTx(walletClient: WalletClient, userAddress: string, beneficiaryAddress: string) {
+export async function recoverTestTx(walletClient: WalletClient, userAddress: string, beneficiaryAddress: string) {
+  const publicClient = createPublicClient({
+    chain: celoAlfajores,
+    transport: http()
+  })
+  const pendingBalance = await publicClient.getBalance({
+    address: userAddress as any,
+  })
+
+  console.log('Pending balance: ', pendingBalance);
   const hash = await walletClient.writeContract({
     abi: IMPLEMENTATION_ABI,
     address: userAddress as any,
     functionName: 'recover',
-    args: [beneficiaryAddress as any, BigInt(1), "0x"],
+    args: [beneficiaryAddress as any, pendingBalance, "0x"],
   } as any)
   console.log('Dummy tx. Should transfer 1 wei:', hash)
   return hash

@@ -1,13 +1,13 @@
 import React, {useMemo, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import {createWalletClient, EIP1193Provider, http} from 'viem';
+import {createPublicClient, createWalletClient, EIP1193Provider, http} from 'viem';
 import Header from '../components/Header';
 import {SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
-import {celoAlfajores} from "viem/chains";
 import {calculateContractAddress, getExplorerUrl, getOmnichainAuthorization, initializeAccount} from "../utils/contractStuff.ts";
 import {privateKeyToAccount} from "viem/accounts";
 import {useClientContext} from "../context/ClientContext.tsx";
 import {useMutation} from "@tanstack/react-query";
+import {getMockedPaymasterWalletClient} from "../utils/mockPaymaster.ts";
 
 interface SetupRecoveryPageProps {
   isAuthenticated: boolean;
@@ -41,19 +41,13 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
     onAuth();
   };
 
-
   const bindCodeMutation = useMutation({
     mutationFn: async () => {
       const auth = await getOmnichainAuthorization(pkUser);
-      const walletClient = createWalletClient({
-        account: pkUser,
-        chain: celoAlfajores,
-        transport: http(),
-      });
       console.log('initializing user', pkUser.address)
       const contractAddress = await calculateContractAddress(userAddress as any)
       setContractAddress(contractAddress);
-      const acc = await initializeAccount(walletClient, pkUser.address, auth);
+      const acc = await initializeAccount(getMockedPaymasterWalletClient(), pkUser.address, auth);
       console.log("Acc initialized", getExplorerUrl(acc))
       return acc;
     },

@@ -5,9 +5,10 @@ import Header from '../components/Header';
 import {SelfApp, SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
 import {useSignMessage} from '@privy-io/react-auth';
 import {useClientContext} from "../context/ClientContext.tsx";
-import {dummyTestTx, getExplorerUrl, getSmartAccountImplementationAddress} from "../utils/contractStuff.ts";
+import {recoverTestTx, getExplorerUrl, getSmartAccountImplementationAddress} from "../utils/contractStuff.ts";
 import { privateKeyToAccount } from 'viem/accounts';
 import {celoAlfajores} from "viem/chains";
+import {useMutation} from "@tanstack/react-query";
 
 interface RecoverPageProps {
   isAuthenticated: boolean;
@@ -40,19 +41,26 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
     onAuth();
   };
 
-  const handleSendTx = async () => {
-    const eoa = privateKeyToAccount(beneficiaryPK);
-    const walletClient = createWalletClient({
-      account: eoa,
-      chain: celoAlfajores,
-      transport: http(),
-    });
-    const tx = await dummyTestTx(walletClient, oldAddress, beneficiaryAddress)
-    console.log("Acc initialized", getExplorerUrl(tx))
-    setTransactionURL(getExplorerUrl(tx));
-  };
-
-
+  const sendTxMutation = useMutation({
+    mutationFn: async () => {
+      const eoa = privateKeyToAccount(beneficiaryPK);
+      const walletClient = createWalletClient({
+        account: eoa,
+        chain: celoAlfajores,
+        transport: http(),
+      });
+      const tx = await recoverTestTx(walletClient, oldAddress, beneficiaryAddress)
+      console.log("Recover tx url", getExplorerUrl(tx))
+      return tx;
+    },
+    onSuccess: (tx) => {
+      setTransactionURL(getExplorerUrl(tx));
+    },
+    onError: (error) => {
+      console.error('Error sending transaction:', error);
+      // You can add additional error handling here if needed
+    }
+  });
 
   const [selfApp, setSelfApp] = useState<SelfApp | undefined>(undefined);
 
@@ -215,12 +223,29 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                   </div>
                 </div>
               ) : (
-                <button
-                  onClick={handleSendTx}
-                  className="btn-primary"
-                >
-                  Send Test Transaction
-                </button>
+                <div>
+                  <button
+                    onClick={() => sendTxMutation.mutate()}
+                    disabled={sendTxMutation.isPending}
+                    className="btn-primary"
+                    style={{
+                      opacity: sendTxMutation.isPending ? 0.5 : 1,
+                      cursor: sendTxMutation.isPending ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    {sendTxMutation.isPending ? 'Sending Transaction...' : 'Send Test Transaction'}
+                  </button>
+                  {sendTxMutation.isError && (
+                    <div style={{
+                      color: '#ef4444',
+                      fontSize: '14px',
+                      marginTop: '8px',
+                      textAlign: 'center'
+                    }}>
+                      Failed to send transaction. Please try again.
+                    </div>
+                  )}
+                </div>
               )}
             </div>
           )}
@@ -232,7 +257,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
               border: '1px solid #bbf7d0'
             }}>
               <div style={{ fontSize: '60px', marginBottom: '24px' }}>🎉</div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">Recovery Complete!</h2>
+              <h2 className="text-3xl font-bold text-gray-400 mb-4">Recovery Complete!</h2>
               <p style={{ color: '#4b5563', marginBottom: '32px' }}>
                 Your wallet has been successfully recovered using zero-knowledge proofs.
                 You now have full control of your assets on the new address.
