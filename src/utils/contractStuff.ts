@@ -83,6 +83,7 @@ export async function getSmartAccountImplementationAddress(userAddress: string) 
     chain: celoAlfajores,
     transport: http()
   })
+  console.log('userAddress in get SOA: ', userAddress)
   const value = await publicClient.readContract({
     abi: IMPLEMENTATION_ABI,
     functionName: 'wrapper',

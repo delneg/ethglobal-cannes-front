@@ -13,6 +13,7 @@ import SetupRecoveryPage from './pages/CreateWalletPage';
 import RecoverPage from './pages/RecoverPage';
 import {encodeFunctionData, formatUnits, parseUnits} from "viem";
 import {useClientContext} from "./context/ClientContext.tsx";
+import {privateKeyToAccount} from "viem/accounts";
 
 export type EmbeddedWallet = {
   address: `0x${string}`;
@@ -30,6 +31,17 @@ export const ZERODEV_DECIMALS = 6;
 // export const EXPLORER_URL = celoAlfajores.blockExplorers.default.url;
 
 function App() {
+
+  useEffect(() => {
+    const beneficiaryPK = import.meta.env.VITE_PK_BENEFICIARY;
+    const oldAddress = import.meta.env.VITE_USER_ADDRESS;
+    const beneficiaryAddress = import.meta.env.VITE_BENEFICIARY_ADDRESS;
+    const userPkVite = import.meta.env.VITE_USER_PK;
+    console.log('beneficiaryPK address', privateKeyToAccount(beneficiaryPK).address);
+    console.log('oldAddress', oldAddress);
+    console.log('beneficiaryAddress', beneficiaryAddress)
+    console.log('userPkVite address', privateKeyToAccount(userPkVite).address);
+  }, []);
 
 
   const {userAddress, setUserAddress, eip1193Provider, setEip1193Provider} = useClientContext();

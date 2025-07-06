@@ -1,11 +1,11 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
 import {createWalletClient, EIP1193Provider, http} from 'viem';
 import Header from '../components/Header';
-import {SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
+import {SelfApp, SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
 import {useSignMessage} from '@privy-io/react-auth';
 import {useClientContext} from "../context/ClientContext.tsx";
-import {dummyTestTx, getExplorerUrl} from "../utils/contractStuff.ts";
+import {dummyTestTx, getExplorerUrl, getSmartAccountImplementationAddress} from "../utils/contractStuff.ts";
 import { privateKeyToAccount } from 'viem/accounts';
 import {celoAlfajores} from "viem/chains";
 
@@ -33,8 +33,8 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   const [ownershipTransferred, setOwnershipTransferred] = useState(false);
   const [messageSigned, setMessageSigned] = useState(false);
   const [transactionURL, setTransactionURL] = useState("");
-  const {contractAddress, setContractAddress} = useClientContext();
 
+  const {contractAddress} = useClientContext();
 
   const handleConnectNewWallet = () => {
     onAuth();
@@ -53,26 +53,37 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   };
 
 
-  const selfApp = useMemo(() => {
-    if (!userAddress || userAddress == '') return null;
-    if (!contractAddress || contractAddress == '') return null;
 
-    console.log("Creating self app", userAddress, 'userId', oldAddress);
-    return new SelfAppBuilder({
-      appName: "My App (Dev)",
-      scope: "my-app-dev",
-      endpoint: contractAddress,
-      endpointType: "staging_celo", // Use testnet
-      userId: oldAddress,
-      userIdType: "hex",
-      version: 2,
-      userDefinedData: userAddress,
-      disclosures: {
-        minimumAge: 11,
-        nationality: true,
-      }
-    }).build()
-  }, [userAddress, contractAddress]);
+  const [selfApp, setSelfApp] = useState<SelfApp | undefined>(undefined);
+
+
+  useEffect(() => {
+    let active = true
+    load()
+    return () => { active = false }
+
+    async function load() {
+      setSelfApp(undefined);
+      // const contractAddress = await getSmartAccountImplementationAddress(oldAddress);
+      if (!active) { return }
+      const app = new SelfAppBuilder({
+        appName: "My App (Dev)",
+        scope: "my-app-dev",
+        endpoint: contractAddress,
+        endpointType: "staging_celo", // Use testnet
+        userId: oldAddress,
+        userIdType: "hex",
+        version: 2,
+        userDefinedData: oldAddress,
+        disclosures: {
+          minimumAge: 11,
+          nationality: true,
+        }
+      }).build();
+      setSelfApp(app);
+    }
+  }, [oldAddress])
+
 
 
   return (

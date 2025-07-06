@@ -7,6 +7,7 @@ import {celoAlfajores} from "viem/chains";
 import {calculateContractAddress, getExplorerUrl, getOmnichainAuthorization, initializeAccount} from "../utils/contractStuff.ts";
 import {privateKeyToAccount} from "viem/accounts";
 import {useClientContext} from "../context/ClientContext.tsx";
+import {useMutation} from "@tanstack/react-query";
 
 interface SetupRecoveryPageProps {
   isAuthenticated: boolean;
@@ -40,20 +41,30 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
     onAuth();
   };
 
-  const bindCode = async () => {
-    const auth = await getOmnichainAuthorization(pkUser);
-    const walletClient = createWalletClient({
-      account: pkUser,
-      chain: celoAlfajores,
-      transport: http(),
-    });
-    console.log('initializing user', pkUser.address)
-    const contractAddress = await calculateContractAddress(userAddress as any)
-    setContractAddress(contractAddress);
-    const acc = await initializeAccount(walletClient, pkUser.address, auth);
-    console.log("Acc initialized", getExplorerUrl(acc))
-    setBoundCode(true);
-  }
+
+  const bindCodeMutation = useMutation({
+    mutationFn: async () => {
+      const auth = await getOmnichainAuthorization(pkUser);
+      const walletClient = createWalletClient({
+        account: pkUser,
+        chain: celoAlfajores,
+        transport: http(),
+      });
+      console.log('initializing user', pkUser.address)
+      const contractAddress = await calculateContractAddress(userAddress as any)
+      setContractAddress(contractAddress);
+      const acc = await initializeAccount(walletClient, pkUser.address, auth);
+      console.log("Acc initialized", getExplorerUrl(acc))
+      return acc;
+    },
+    onSuccess: () => {
+      setBoundCode(true);
+    },
+    onError: (error) => {
+      console.error('Error binding code:', error);
+      // You can add additional error handling here if needed
+    }
+  });
 
   const selfApp = useMemo(() => {
     if (!userAddress || userAddress == '') return null;
@@ -153,17 +164,29 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
                 </div>
 
                 {!boundCode ? (
-                  <button
-                    onClick={bindCode}
-                    disabled={!isAuthenticated}
-                    className="btn-primary"
-                    style={{
-                      opacity: !isAuthenticated ? 0.5 : 1,
-                      cursor: !isAuthenticated ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    Show QR for Self App
-                  </button>
+                  <div>
+                    <button
+                      onClick={() => bindCodeMutation.mutate()}
+                      disabled={!isAuthenticated || bindCodeMutation.isPending}
+                      className="btn-primary"
+                      style={{
+                        opacity: (!isAuthenticated || bindCodeMutation.isPending) ? 0.5 : 1,
+                        cursor: (!isAuthenticated || bindCodeMutation.isPending) ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      {bindCodeMutation.isPending ? 'Loading...' : 'Show QR for Self App'}
+                    </button>
+                    {bindCodeMutation.isError && (
+                      <div style={{
+                        color: '#ef4444',
+                        fontSize: '14px',
+                        marginTop: '8px',
+                        textAlign: 'center'
+                      }}>
+                        Failed to initialize. Please try again.
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <div className="text-center">
                     <SelfQRcodeWrapper
