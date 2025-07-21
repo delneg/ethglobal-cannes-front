@@ -21,19 +21,6 @@ export type EmbeddedWallet = {
 };
 
 function App() {
-
-  useEffect(() => {
-    // const beneficiaryPK = import.meta.env.VITE_PK_BENEFICIARY;
-    // const oldAddress = import.meta.env.VITE_USER_ADDRESS;
-    // const beneficiaryAddress = import.meta.env.VITE_BENEFICIARY_ADDRESS;
-    // const userPkVite = import.meta.env.VITE_USER_PK;
-    // console.log('beneficiaryPK address', privateKeyToAccount(beneficiaryPK).address);
-    // console.log('oldAddress', oldAddress);
-    // console.log('beneficiaryAddress', beneficiaryAddress)
-    // console.log('userPkVite address', privateKeyToAccount(userPkVite).address);
-  }, []);
-
-
   const {userAddress, setUserAddress, eip1193Provider, setEip1193Provider} = useClientContext();
 
   const {ready, authenticated, user} = usePrivy();
