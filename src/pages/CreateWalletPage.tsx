@@ -85,14 +85,6 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: 'var(--color-background)' }}>
-      <Header
-        isAuthenticated={isAuthenticated}
-        user={user}
-        userAddress={userAddress}
-        onAuth={onAuth}
-        ready={ready}
-      />
-
       {/* Main Content */}
       <main className="container py-12">
         {/* Page Header */}
@@ -100,6 +92,9 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
           <h1 className="text-4xl font-bold text-gray-900">
             Setup Recovery
           </h1>
+          <p className="text-xl text-gray-600 mt-8">
+            Connect your wallet and link your Self Passport for recovery. <br/>Once it will be done, you will be able to recover your wallet using your Self Passport.
+          </p>
         </div>
 
         {/* Steps */}
@@ -114,6 +109,10 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
               </div>
               <h2 className="text-2xl font-semibold text-gray-900">Connect Your Wallet</h2>
             </div>
+
+            <p className="text-gray-600 mb-8">
+              Connect your wallet using Privy to get started.
+            </p>
 
             {isAuthenticated && userAddress ? (
               <div className="status-success">
@@ -149,6 +148,10 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
                   </div>
                   <h2 className="text-2xl font-semibold text-gray-900">Link Self Passport</h2>
                 </div>
+
+                <p className="text-gray-600 mb-8">
+                  Fund your account with some Celo to cover gas fees. Gas sponsorship is coming soon.<br/> After that, open Self App and scan the QR code below.
+                </p>
 
                 {!boundCode ? (
                   <div>
