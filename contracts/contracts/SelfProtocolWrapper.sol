@@ -24,8 +24,9 @@ contract SelfProtocolWrapper is SelfVerificationRoot {
     event RecoveryModeDisabled();
 
     constructor(
+        address _identityHubAddress,
         uint256 _scope // Application-specific scope identifier,
-    ) SelfVerificationRoot(0x68c931C9a534D37aa78094877F46fE46a49F1A51, _scope) {
+    ) SelfVerificationRoot(_identityHubAddress, _scope) {
         masterSigner = msg.sender;
     }
 
