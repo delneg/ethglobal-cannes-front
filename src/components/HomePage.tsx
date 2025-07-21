@@ -115,13 +115,13 @@ const HomePage: React.FC<HomePageProps> = ({
 
               <button
                 onClick={() => navigate('/recover')}
-                className="btn-secondary"
+                className="btn-primary"
                 style={{ width: '220px', fontSize: '18px' }}
               >
                 <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Recovery
+                Recover Wallet
               </button>
             </div>
           </div>
