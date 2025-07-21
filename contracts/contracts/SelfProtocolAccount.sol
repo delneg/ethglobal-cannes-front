@@ -3,6 +3,9 @@ pragma solidity ^0.8.28;
 import {SelfProtocolWrapper} from "./SelfProtocolWrapper.sol";
 
 contract SelfProtocolAccount {
+    address internal constant TESTNET_IDENTITY_HUB_ADDRESS = 0x68c931C9a534D37aa78094877F46fE46a49F1A51;
+    address internal constant MAINNET_IDENTITY_HUB_ADDRESS = 0xe57F4773bd9c9d8b6Cd70431117d353298B9f5BF;
+
     SelfProtocolWrapper public wrapper;
 
     event Initialized(address indexed wrapper);
@@ -12,9 +15,14 @@ contract SelfProtocolAccount {
         _;
     }
 
-    function initialize(uint256 scope) public {
+    function initialize(uint256 scope, bool isProduction) public {
         require(!isInitialized(), "already initialized");
-        wrapper = new SelfProtocolWrapper(scope);
+
+        if (isProduction) {
+            wrapper = new SelfProtocolWrapper(scope);
+        } else {
+            wrapper = new SelfProtocolWrapper(scope);
+        }
 
         emit Initialized(address(wrapper));
     }
