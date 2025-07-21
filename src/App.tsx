@@ -66,47 +66,6 @@ function App() {
     }
   }, [wallets, walletsReady]);
 
-  //
-  // const {
-  //   mutate: sendTransaction,
-  //   isPending,
-  //   data: txHash,
-  // } = useMutation({
-  //   mutationKey: ["gasSponsorship sendTransaction", kernelClients?.kernelAccountClient?.account?.address],
-  //   mutationFn: async () => {
-  //     if (!kernelClients?.kernelAccountClient?.account) throw new Error("No kernel client found");
-  //
-  //     const kernelAccountClient = kernelClients?.kernelAccountClient;
-  //     return kernelAccountClient.sendTransaction({
-  //       account: kernelAccountClient.account,
-  //       to: "0x406F912c5a5B6137Be1153ec71DD9c03624FF3E6",
-  //       value: BigInt(0),
-  //       data: encodeFunctionData({
-  //         abi: [
-  //           {
-  //             name: "setScope",
-  //             type: "function",
-  //             inputs: [
-  //               {name: "_scope", type: "uint256"},
-  //             ],
-  //           },
-  //         ],
-  //         functionName: "setScope",
-  //         args: ["14083505874396192783076663245664044579645088232806584587291798726989971910781"],
-  //       }),
-  //       chain: celoAlfajores,
-  //     });
-  //   },
-  //   onSuccess: (data) => {
-  //     console.log(data);
-  //     console.log("Transaction sent successfully");
-  //   },
-  //   onError: (error) => {
-  //     console.error(error);
-  //     console.log("Failed to send transaction");
-  //   },
-  // });
-
   const {login} = useLogin({
     onComplete: ({user, isNewUser, wasAlreadyAuthenticated, loginMethod, loginAccount}) => {
       console.log("User logged in");
