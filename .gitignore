@@ -67,3 +67,7 @@ next-env.d.ts
 # esbuild bundle analyzer
 esbuild-meta.json
 esbuild-stats.html
+
+# hardhat stuff
+contracts/artifacts
+contracts/cache
