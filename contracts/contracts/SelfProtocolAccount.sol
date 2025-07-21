@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
 import {SelfProtocolWrapper} from "./SelfProtocolWrapper.sol";
@@ -40,7 +41,7 @@ contract SelfProtocolAccount {
     }
 
     function disableRecoveryMode() public onlyInitialized {
-        wrapper.disableRecoveryMode()();
+        wrapper.disableRecoveryMode();
     }
 
     function recover(address to, uint256 value, bytes calldata data) external {
