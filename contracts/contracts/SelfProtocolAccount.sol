@@ -7,6 +7,11 @@ contract SelfProtocolAccount {
 
     event Initialized(address indexed wrapper);
 
+    modifier onlyInitialized() {
+        require(isInitialized(), "not initialized");
+        _;
+    }
+
     function initialize(uint256 scope) public {
         require(!isInitialized(), "already initialized");
         wrapper = new SelfProtocolWrapper(scope);
@@ -22,9 +27,16 @@ contract SelfProtocolAccount {
         return wrapper.allowedSigner();
     }
 
-    function proposeRecovery(address _newSigner) public {
-        require(isInitialized(), "not initialized");
-        wrapper.proposeRecovery(_newSigner);
+//    function proposeRecovery(address _newSigner) public onlyInitialized {
+//        wrapper.proposeRecovery(_newSigner);
+//    }
+
+    function enableRecoveryMode() public onlyInitialized {
+        wrapper.enableRecoveryMode();
+    }
+
+    function disableRecoveryMode() public onlyInitialized {
+        wrapper.disableRecoveryMode()();
     }
 
     function recover(address to, uint256 value, bytes calldata data) external {
