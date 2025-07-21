@@ -13,7 +13,7 @@ export const config: PrivyClientConfig = {
   // Customize Privy's appearance in your app
   appearance: {
     // walletChainType: "ethereum-only",
-    landingHeader: "ETHGlobal cannes 2025"
+    landingHeader: "Revix: Recover your wallet"
   },
   // walletConnectCloudProjectId: config.walletConnectProjectId,
 
