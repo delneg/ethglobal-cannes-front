@@ -19,9 +19,9 @@ contract SelfProtocolAccount {
         require(!isInitialized(), "already initialized");
 
         if (isProduction) {
-            wrapper = new SelfProtocolWrapper(scope);
+            wrapper = new SelfProtocolWrapper(MAINNET_IDENTITY_HUB_ADDRESS, scope);
         } else {
-            wrapper = new SelfProtocolWrapper(scope);
+            wrapper = new SelfProtocolWrapper(TESTNET_IDENTITY_HUB_ADDRESS, scope);
         }
 
         emit Initialized(address(wrapper));
