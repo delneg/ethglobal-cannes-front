@@ -1,5 +1,4 @@
 import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-toolbox";
 import "@nomicfoundation/hardhat-toolbox-viem";
 import dotenv from "dotenv";
 
