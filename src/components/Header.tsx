@@ -157,7 +157,7 @@ const Header: React.FC<HeaderProps> = ({
 
               {onAuth && (
                 <button
-                  onClick={onAuth}
+                  onClick={() => navigate('/setuprecovery')}
                   disabled={!ready}
                   style={{
                     background: isAuthenticated
