@@ -46,7 +46,6 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
       const auth = await signAuthorization({
         contractAddress: IMPLEMENTATION_ADDRESS as any,
         chainId: 0,
-        nonce: 4,
         executor: "self"
       })
 
