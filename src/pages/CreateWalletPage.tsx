@@ -1,14 +1,12 @@
 import React, {useMemo, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import {createPublicClient, createWalletClient, EIP1193Provider, http} from 'viem';
-import Header from '../components/Header';
+import {EIP1193Provider} from 'viem';
 import {SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
-import {calculateContractAddress, getExplorerUrl, getOmnichainAuthorization, IMPLEMENTATION_ADDRESS, initializeAccount} from "../utils/contractStuff.ts";
-import {privateKeyToAccount} from "viem/accounts";
+import {calculateContractAddress, getExplorerUrl, IMPLEMENTATION_ADDRESS, initializeAccount} from "../utils/contractStuff.ts";
 import {useClientContext} from "../context/ClientContext.tsx";
 import {useMutation} from "@tanstack/react-query";
 import {getMockedPaymasterWalletClient} from "../utils/mockPaymaster.ts";
-import {useSign7702Authorization, useSignAuthorization} from "@privy-io/react-auth";
+import {useSign7702Authorization} from "@privy-io/react-auth";
 import {celoAlfajores} from "viem/chains";
 
 interface SetupRecoveryPageProps {
@@ -43,12 +41,14 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
 
   const bindCodeMutation = useMutation({
     mutationFn: async () => {
+      console.log('Signing 7702 authorization. Implementation: ', IMPLEMENTATION_ADDRESS)
       const auth = await signAuthorization({
         contractAddress: IMPLEMENTATION_ADDRESS as any,
         chainId: celoAlfajores.id,
-        nonce: 0,
+        executor: "self"
       })
-      console.log('initializing user', userAddress)
+
+      console.log('Initializing account for user', userAddress)
       const contractAddress = await calculateContractAddress(userAddress as any)
       setContractAddress(contractAddress);
       const acc = await initializeAccount(getMockedPaymasterWalletClient(), userAddress!, auth);
@@ -88,7 +88,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
       {/* Main Content */}
       <main className="container py-12">
         {/* Page Header */}
-        <div className="text-center mb-12"> 
+        <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900">
             Setup Recovery
           </h1>

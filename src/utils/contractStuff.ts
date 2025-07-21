@@ -26,8 +26,7 @@ export const IMPLEMENTATION_ABI = parseAbi([
   "function proposeRecovery(address _newSigner) public"
 ])
 
-
-
+export const IS_MAINNET = import.meta.env.VITE_IS_PRODUCTION
 export const IMPLEMENTATION_ADDRESS = import.meta.env.VITE_IMPLEMENTATION_ADDRESS
 export const SCOPE_SEED = "my-app-dev"
 export const calculateContractAddress = async (deployerAddress: `0x${string}`) => {
