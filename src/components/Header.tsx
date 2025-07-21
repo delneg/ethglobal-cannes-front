@@ -193,7 +193,7 @@ const Header: React.FC<HeaderProps> = ({
                     }
                   }}
                 >
-                  {!ready ? 'Loading...' : isAuthenticated ? 'Disconnect' : 'Authorize'}
+                  {!ready ? 'Loading...' : isAuthenticated ? 'Disconnect' : 'Set Up Recovery'}
                 </button>
               )}
             </div>
