@@ -33,13 +33,13 @@ export const ZERODEV_DECIMALS = 6;
 function App() {
 
   useEffect(() => {
-    const beneficiaryPK = import.meta.env.VITE_PK_BENEFICIARY;
-    const oldAddress = import.meta.env.VITE_USER_ADDRESS;
-    const beneficiaryAddress = import.meta.env.VITE_BENEFICIARY_ADDRESS;
+    // const beneficiaryPK = import.meta.env.VITE_PK_BENEFICIARY;
+    // const oldAddress = import.meta.env.VITE_USER_ADDRESS;
+    // const beneficiaryAddress = import.meta.env.VITE_BENEFICIARY_ADDRESS;
     // const userPkVite = import.meta.env.VITE_USER_PK;
-    console.log('beneficiaryPK address', privateKeyToAccount(beneficiaryPK).address);
-    console.log('oldAddress', oldAddress);
-    console.log('beneficiaryAddress', beneficiaryAddress)
+    // console.log('beneficiaryPK address', privateKeyToAccount(beneficiaryPK).address);
+    // console.log('oldAddress', oldAddress);
+    // console.log('beneficiaryAddress', beneficiaryAddress)
     // console.log('userPkVite address', privateKeyToAccount(userPkVite).address);
   }, []);
 
