@@ -20,12 +20,7 @@ interface SetupRecoveryPageProps {
   eip1193Provider?: EIP1193Provider;
 }
 
-
-// const userPkVite =  import.meta.env.VITE_USER_PK;
-// const oldAddress = import.meta.env.VITE_USER_ADDRESS;
 const beneficiaryAddress = import.meta.env.VITE_BENEFICIARY_ADDRESS;
-
-// const pkUser = privateKeyToAccount(userPkVite)
 
 const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
   isAuthenticated,
@@ -103,7 +98,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
         {/* Page Header */}
         <div className="text-center mb-12"> 
           <h1 className="text-4xl font-bold text-gray-900">
-            Create Wallet + Bind Passport
+            Setup Recovery
           </h1>
         </div>
 
