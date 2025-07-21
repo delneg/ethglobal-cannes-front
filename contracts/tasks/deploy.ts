@@ -13,7 +13,7 @@ task("deploy", "Deploy SelfProtocolAccount contract")
         console.log("Scope", scope)
 
         // Get the contract factory
-        const contract = await hre.viem.deployContract("SelfDebugUserDefinedData", [
+        const contract = await hre.viem.deployContract("SelfProtocolAccount", [
             BigInt(scope)
         ]);
 
