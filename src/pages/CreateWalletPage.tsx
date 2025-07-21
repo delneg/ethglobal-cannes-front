@@ -1,12 +1,12 @@
 import React, {useMemo, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import {EIP1193Provider} from 'viem';
+import {createWalletClient, custom, EIP1193Provider, Hex} from 'viem';
 import {SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
 import {calculateContractAddress, getExplorerUrl, IMPLEMENTATION_ADDRESS, initializeAccount} from "../utils/contractStuff.ts";
 import {useClientContext} from "../context/ClientContext.tsx";
 import {useMutation} from "@tanstack/react-query";
 import {getMockedPaymasterWalletClient} from "../utils/mockPaymaster.ts";
-import {useSign7702Authorization} from "@privy-io/react-auth";
+import {useSign7702Authorization, useWallets} from "@privy-io/react-auth";
 import {celoAlfajores} from "viem/chains";
 
 interface SetupRecoveryPageProps {
@@ -31,6 +31,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
   const navigate = useNavigate();
   const [recoveryBound, setRecoveryBound] = useState(false);
   const [boundCode, setBoundCode] = useState(false);
+  const { wallets } = useWallets();
 
   const {contractAddress, setContractAddress} = useClientContext();
   const handleConnectWallet = () => {
@@ -44,15 +45,28 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
       console.log('Signing 7702 authorization. Implementation: ', IMPLEMENTATION_ADDRESS)
       const auth = await signAuthorization({
         contractAddress: IMPLEMENTATION_ADDRESS as any,
-        chainId: celoAlfajores.id,
+        chainId: 0,
+        nonce: 4,
         executor: "self"
+      })
+
+      if (wallets.length === 0) {
+        throw new Error('No wallets found');
+      }
+
+      const userWallet = wallets[0];
+      const userProvider = await userWallet.getEthereumProvider();
+      const userWalletClient = createWalletClient({
+        account: userWallet.address as Hex,
+        chain: celoAlfajores,
+        transport: custom(userProvider),
       })
 
       console.log('Initializing account for user', userAddress)
       const contractAddress = await calculateContractAddress(userAddress as any)
       setContractAddress(contractAddress);
-      const acc = await initializeAccount(getMockedPaymasterWalletClient(), userAddress!, auth);
-      console.log("Acc initialized", getExplorerUrl(acc))
+      const acc = await initializeAccount(userWalletClient, userAddress!, auth);
+      console.log("Account initialized", getExplorerUrl(acc))
       return acc;
     },
     onSuccess: () => {
@@ -68,7 +82,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
     if (!userAddress || userAddress == '') return null;
     if (!contractAddress || contractAddress == '') return null;
     return new SelfAppBuilder({
-      appName: "My App (Dev)",
+      appName: "Revix: Wallet Recovery",
       scope: "my-app-dev",
       endpoint: contractAddress,
       endpointType: "staging_celo", // Use testnet
@@ -119,7 +133,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
                 <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span style={{ fontWeight: '500' }}>Wallet connected: {userAddress.slice(0, 6)}...{userAddress.slice(-4)}</span>
+                <span style={{ fontWeight: '500' }}>Wallet connected: {userAddress}</span>
               </div>
             ) : isAuthenticated && !userAddress ? (
               <div style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>

@@ -19,7 +19,7 @@ export function getExplorerUrl(tx: string) {
   return `${EXPLORER_URL}/tx/${tx}`
 }
 export const IMPLEMENTATION_ABI = parseAbi([
-  "function initialize(uint256 scope)",
+  "function initialize(uint256 scope, bool isProduction) public",
   "function isInitialized() public view returns (bool)",
   "function recover(address to, uint256 value, bytes calldata data) external",
   "function wrapper() public view returns (address)",
@@ -63,17 +63,30 @@ export async function initializeAccount(walletClient: WalletClient, userAddress:
   console.log('Predicted contract address: ', contractAddress )
   const scope = BigInt(hashEndpointWithScope(contractAddress, SCOPE_SEED))
 
-
   // Initialize account
   const hash = await walletClient.writeContract({
     abi: IMPLEMENTATION_ABI,
     address: userAddress as any,
     authorizationList: [authorization],
     functionName: 'initialize',
-    args: [scope],
-    // chain: celoAlfajores
+    args: [scope, false],
+    chain: celoAlfajores
   } as any)
   console.log('Transaction hash:', hash)
+
+  const publicClient = createPublicClient({
+    chain: celoAlfajores,
+    transport: http()
+  })
+
+  const isInitializedAfter = await publicClient.readContract({
+    abi: IMPLEMENTATION_ABI,
+    functionName: 'isInitialized',
+    args: [],
+    address: userAddress as any,
+  })
+  console.log('Is initialized: ', isInitializedAfter)
+
   return hash;
 }
 
