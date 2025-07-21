@@ -19,10 +19,23 @@ contract SelfProtocolWrapper is SelfVerificationRoot {
     event NullifierSet(uint256 nullifier);
     event AllowedSigner(address allowedSigner);
 
+    event RecoveryModeEnabled();
+    event RecoveryModeDisabled();
+
     constructor(
         uint256 _scope // Application-specific scope identifier,
     ) SelfVerificationRoot(0x68c931C9a534D37aa78094877F46fE46a49F1A51, _scope) {
         master = msg.sender;
+    }
+
+    function enableRecoveryMode() public {
+        isInRecoveryMode = true;
+        emit RecoveryModeEnabled();
+    }
+
+    function disableRecoveryMode() public {
+        isInRecoveryMode = false;
+        emit RecoveryModeDisabled();
     }
 
     function proposeRecovery(address _proposedAddress) public {
