@@ -1,13 +1,20 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
 import "@nomicfoundation/hardhat-toolbox-viem";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const config: HardhatUserConfig = {
   solidity: "0.8.28",
   networks: {
-    celo: {
+    celoTestnet: {
       url: "https://alfajores-forno.celo-testnet.org",
-      accounts: [""],
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY!],
+    },
+    celoMainnet: {
+      url: "https://forno.celo.org",
+      accounts: [process.env.DEPLOYER_PRIVATE_KEY!],
     },
   },
 };
