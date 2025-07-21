@@ -5,6 +5,7 @@
       "name": "hardhat-project",
       "dependencies": {
         "@account-abstraction/contracts": "^0.8.0",
+        "@nomicfoundation/hardhat-toolbox-viem": "^4.1.0",
         "@openzeppelin/contracts": "^5.3.0",
         "@selfxyz/contracts": "^1.2.0",
         "poseidon-lite": "^0.3.0",
@@ -156,11 +157,17 @@
 
     "@nomicfoundation/hardhat-ignition-ethers": ["@nomicfoundation/hardhat-ignition-ethers@0.15.13", "", { "peerDependencies": { "@nomicfoundation/hardhat-ethers": "^3.0.9", "@nomicfoundation/hardhat-ignition": "^0.15.12", "@nomicfoundation/ignition-core": "^0.15.12", "ethers": "^6.14.0", "hardhat": "^2.18.0" } }, "sha512-fJuImb0KBbsylTL5M1DdlChIO/GZoms2NUVJhU+AvfhlgB0jzRH+9jSXE9izYPktd8//tdVSC4kJloJPrR+BlA=="],
 
+    "@nomicfoundation/hardhat-ignition-viem": ["@nomicfoundation/hardhat-ignition-viem@0.15.13", "", { "peerDependencies": { "@nomicfoundation/hardhat-ignition": "^0.15.13", "@nomicfoundation/hardhat-viem": "^2.1.0", "@nomicfoundation/ignition-core": "^0.15.13", "hardhat": "^2.26.0", "viem": "^2.7.6" } }, "sha512-TT462kG6s+XKhVX6t+YamRQohuKB49wF3Aq1bv90q29FOv1OmjoqvgDfehdAUZknyrH9+I3eXDJrH8I9kwOjGQ=="],
+
     "@nomicfoundation/hardhat-network-helpers": ["@nomicfoundation/hardhat-network-helpers@1.0.13", "", { "dependencies": { "ethereumjs-util": "^7.1.4" }, "peerDependencies": { "hardhat": "^2.9.5" } }, "sha512-ptg0+SH8jnfoYHlR3dKWTNTB43HZSxkuy3OeDk+AufEKQvQ7Ru9LQEbJtLuDTQ4HGRBkhl4oJ9RABsEIbn7Taw=="],
 
     "@nomicfoundation/hardhat-toolbox": ["@nomicfoundation/hardhat-toolbox@6.0.0", "", { "peerDependencies": { "@nomicfoundation/hardhat-chai-matchers": "^2.0.0", "@nomicfoundation/hardhat-ethers": "^3.0.0", "@nomicfoundation/hardhat-ignition-ethers": "^0.15.0", "@nomicfoundation/hardhat-network-helpers": "^1.0.0", "@nomicfoundation/hardhat-verify": "^2.0.0", "@typechain/ethers-v6": "^0.5.0", "@typechain/hardhat": "^9.0.0", "@types/chai": "^4.2.0", "@types/mocha": ">=9.1.0", "@types/node": ">=18.0.0", "chai": "^4.2.0", "ethers": "^6.14.0", "hardhat": "^2.11.0", "hardhat-gas-reporter": "^2.3.0", "solidity-coverage": "^0.8.1", "ts-node": ">=8.0.0", "typechain": "^8.3.0", "typescript": ">=4.5.0" } }, "sha512-3qm3VuDp5xD8UyfhYPPfZHnCc0M/V5yfRSTSDdOuI8DTrmYJkMNW7QrTNGalMCigWn3suBghSw9YcMOyGDJ7Lg=="],
 
+    "@nomicfoundation/hardhat-toolbox-viem": ["@nomicfoundation/hardhat-toolbox-viem@4.1.0", "", { "dependencies": { "chai-as-promised": "^7.1.1" }, "peerDependencies": { "@nomicfoundation/hardhat-ignition-viem": "^0.15.13", "@nomicfoundation/hardhat-network-helpers": "^1.1.0", "@nomicfoundation/hardhat-verify": "^2.1.0", "@nomicfoundation/hardhat-viem": "^2.1.0", "@types/chai": "^4.2.0", "@types/chai-as-promised": "^7.1.6", "@types/mocha": ">=9.1.0", "@types/node": ">=20.0.0", "chai": "^4.2.0", "hardhat": "^2.26.0", "hardhat-gas-reporter": "^2.3.0", "solidity-coverage": "^0.8.1", "ts-node": ">=8.0.0", "typescript": "^5.0.4", "viem": "^2.7.6" } }, "sha512-B++V/JBaxHxfwUVdWipUrttdtcCm+1YP7fFxowuzfJZ+S2E9td8LntIYRgpRxaUZP9T3vsUfD2XWvZrfCuYslg=="],
+
     "@nomicfoundation/hardhat-verify": ["@nomicfoundation/hardhat-verify@2.0.14", "", { "dependencies": { "@ethersproject/abi": "^5.1.2", "@ethersproject/address": "^5.0.2", "cbor": "^8.1.0", "debug": "^4.1.1", "lodash.clonedeep": "^4.5.0", "picocolors": "^1.1.0", "semver": "^6.3.0", "table": "^6.8.0", "undici": "^5.14.0" }, "peerDependencies": { "hardhat": "^2.24.1" } }, "sha512-z3iVF1WYZHzcdMMUuureFpSAfcnlfJbJx3faOnGrOYg6PRTki1Ut9JAuRccnFzMHf1AmTEoSUpWcyvBCoxL5Rg=="],
+
+    "@nomicfoundation/hardhat-viem": ["@nomicfoundation/hardhat-viem@2.1.0", "", { "dependencies": { "abitype": "^0.9.8", "lodash.memoize": "^4.1.2" }, "peerDependencies": { "hardhat": "^2.26.0", "viem": "^2.7.6" } }, "sha512-RZdoOqm9MHuf0K7cMFltDsiMSZuhO8TRHZxT6CQ5EV0mTBMXenFUs14sT91PhL2cDOnahwKxnWQY2akc7L8FUA=="],
 
     "@nomicfoundation/ignition-core": ["@nomicfoundation/ignition-core@0.15.12", "", { "dependencies": { "@ethersproject/address": "5.6.1", "@nomicfoundation/solidity-analyzer": "^0.1.1", "cbor": "^9.0.0", "debug": "^4.3.2", "ethers": "^6.14.0", "fs-extra": "^10.0.0", "immer": "10.0.2", "lodash": "4.17.21", "ndjson": "2.0.0" } }, "sha512-JJdyoyfM5RXaUqv4c2V/8xpuui4uqJbMCvVnEhgo6FMOK6bqj8wGP6hM4gNE5TLug6ZUCdjIB8kFpofl21RycQ=="],
 
@@ -854,6 +861,8 @@
 
     "lodash.isequal": ["lodash.isequal@4.5.0", "", {}, "sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ=="],
 
+    "lodash.memoize": ["lodash.memoize@4.1.2", "", {}, "sha512-t7j+NzmgnQzTAYXcsHYLgimltOV1MXHtlOWf6GjL9Kj8GK5FInw5JotxvbOs+IvV1/Dzo04/fCGfLVs7aXb4Ag=="],
+
     "lodash.truncate": ["lodash.truncate@4.4.2", "", {}, "sha512-jttmRe7bRse52OsWIMDLaXxWqRAmtIUccAQ3garviCqJjafXOfNMO0yMfNpdD6zbGaTU0P5Nz7e7gAT6cKmJRw=="],
 
     "log-symbols": ["log-symbols@4.1.0", "", { "dependencies": { "chalk": "^4.1.0", "is-unicode-supported": "^0.1.0" } }, "sha512-8XPvpAA8uyhfteu8pIvQxpJZ7SYYdpUivZpGy6sFsBuKRY/7rQGavedeB8aK+Zkyq6upMFVL/9AW6vOYzfRyLg=="],
@@ -1319,6 +1328,8 @@
     "@isaacs/cliui/wrap-ansi": ["wrap-ansi@8.1.0", "", { "dependencies": { "ansi-styles": "^6.1.0", "string-width": "^5.0.1", "strip-ansi": "^7.0.1" } }, "sha512-si7QWI6zUMq56bESFvagtmzMdGOtoxfR+Sez11Mobfc7tm+VkUckk9bW2UeffTGVUbOksxmSw0AA2gs8g71NCQ=="],
 
     "@nomicfoundation/hardhat-ignition/fs-extra": ["fs-extra@10.1.0", "", { "dependencies": { "graceful-fs": "^4.2.0", "jsonfile": "^6.0.1", "universalify": "^2.0.0" } }, "sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ=="],
+
+    "@nomicfoundation/hardhat-viem/abitype": ["abitype@0.9.10", "", { "peerDependencies": { "typescript": ">=5.0.4", "zod": "^3 >=3.22.0" }, "optionalPeers": ["typescript", "zod"] }, "sha512-FIS7U4n7qwAT58KibwYig5iFG4K61rbhAqaQh/UWj8v1Y8mjX3F8TC9gd8cz9yT1TYel9f8nS5NO5kZp2RW0jQ=="],
 
     "@nomicfoundation/ignition-core/@ethersproject/address": ["@ethersproject/address@5.6.1", "", { "dependencies": { "@ethersproject/bignumber": "^5.6.2", "@ethersproject/bytes": "^5.6.1", "@ethersproject/keccak256": "^5.6.1", "@ethersproject/logger": "^5.6.0", "@ethersproject/rlp": "^5.6.1" } }, "sha512-uOgF0kS5MJv9ZvCz7x6T2EXJSzotiybApn4XlOgoTX0xdtyVIJ7pF+6cGPxiEq/dpBiTfMiw7Yc81JcwhSYA0Q=="],
 
