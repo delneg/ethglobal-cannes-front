@@ -35,10 +35,6 @@ contract SelfProtocolAccount {
         return wrapper.allowedSigner();
     }
 
-//    function proposeRecovery(address _newSigner) public onlyInitialized {
-//        wrapper.proposeRecovery(_newSigner);
-//    }
-
     function enableRecoveryMode() public onlyInitialized {
         wrapper.enableRecoveryMode();
     }
