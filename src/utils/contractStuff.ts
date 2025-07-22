@@ -74,6 +74,9 @@ export async function initializeAccount(walletClient: WalletClient, userAddress:
   } as any)
   console.log('Transaction hash:', hash)
 
+  // Wait a bit, while transaction being settled
+  await new Promise((r) => setTimeout(r, 5000))
+
   const publicClient = createPublicClient({
     chain: celoAlfajores,
     transport: http()
