@@ -1,8 +1,13 @@
 import React, {useMemo, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
-import {createWalletClient, custom, EIP1193Provider, Hex} from 'viem';
+import {useNavigate} from 'react-router-dom';
+import {Address, Chain, createPublicClient, EIP1193Provider, http} from 'viem';
 import {SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
-import {calculateContractAddress, getExplorerUrl, IMPLEMENTATION_ADDRESS, initializeAccount} from "../utils/contractStuff.ts";
+import {
+  calculateContractAddress,
+  getExplorerUrl,
+  IMPLEMENTATION_ADDRESS,
+  initializeAccount
+} from "../utils/contractStuff.ts";
 import {useClientContext} from "../context/ClientContext.tsx";
 import {useMutation} from "@tanstack/react-query";
 import {getMockedPaymasterWalletClient} from "../utils/mockPaymaster.ts";
@@ -40,31 +45,29 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
 
   const {signAuthorization} = useSign7702Authorization();
 
+  const createAuthorization = async (userAddress: Address, chain: Chain) => {
+    const publicClient = createPublicClient({
+      transport: http(),
+      chain: celoAlfajores,
+    })
+    const userNonce = await publicClient.getTransactionCount({address: userAddress})
+    return await signAuthorization({
+      contractAddress: IMPLEMENTATION_ADDRESS as any,
+      chainId: 0,
+      nonce: userNonce,
+    })
+  }
+
   const bindCodeMutation = useMutation({
     mutationFn: async () => {
-      console.log('Signing 7702 authorization. Implementation: ', IMPLEMENTATION_ADDRESS)
-      const auth = await signAuthorization({
-        contractAddress: IMPLEMENTATION_ADDRESS as any,
-        chainId: 0,
-        executor: "self"
-      })
-
-      if (wallets.length === 0) {
-        throw new Error('No wallets found');
-      }
-
-      const userWallet = wallets[0];
-      const userProvider = await userWallet.getEthereumProvider();
-      const userWalletClient = createWalletClient({
-        account: userWallet.address as Hex,
-        chain: celoAlfajores,
-        transport: custom(userProvider),
-      })
+      const auth = await createAuthorization(userAddress as Address, celoAlfajores)
 
       console.log('Initializing account for user', userAddress)
       const contractAddress = await calculateContractAddress(userAddress as any)
       setContractAddress(contractAddress);
-      const acc = await initializeAccount(userWalletClient, userAddress!, auth);
+
+      const paymasterWalletClient = getMockedPaymasterWalletClient()
+      const acc = await initializeAccount(paymasterWalletClient, userAddress!, auth);
       console.log("Account initialized", getExplorerUrl(acc))
       return acc;
     },
