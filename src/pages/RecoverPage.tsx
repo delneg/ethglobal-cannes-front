@@ -208,7 +208,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
               <div className="icon-container icon-blue">
                 <span style={{ color: 'white', fontWeight: 'bold' }}>1</span>
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900">Connect New Wallet</h2>
+              <h2 className="text-2xl font-semibold text-gray-900">Input wallet to recover</h2>
             </div>
             <p className="text-gray-600 mb-8">
               Input wallet address you want to recover.
@@ -241,7 +241,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                   minWidth: '120px'
                 }}
               >
-                {isValidating ? 'Checking...' : 'Validate'}
+                {isValidating ? 'Checking...' : 'Confirm'}
               </button>
             </div>
 
