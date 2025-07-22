@@ -91,7 +91,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
       userId: userAddress,
       userIdType: "hex",
       version: 2,
-      userDefinedData: beneficiaryAddress,
+      userDefinedData: "Attaching your passport to your wallet",
       disclosures: {
         minimumAge: 11,
         nationality: true,
