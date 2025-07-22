@@ -1,15 +1,13 @@
 import {
-  Account,
   createPublicClient,
-  encodeFunctionData,
   getContractAddress,
   http,
   parseAbi,
   PrivateKeyAccount,
   SignAuthorizationReturnType,
-  WalletClient
+  WalletClient, zeroHash
 } from "viem";
-import { celoAlfajores } from "viem/chains";
+import {celoAlfajores} from "viem/chains";
 import {hashEndpointWithScope} from "./scopeGenerator.ts";
 
 
@@ -58,7 +56,31 @@ export async function getOmnichainAuthorization(user: PrivateKeyAccount) {
   return authorization;
 }
 
+export async function isInitialized(userAddress: string) {
+  const publicClient = createPublicClient({
+    chain: celoAlfajores,
+    transport: http()
+  })
+  try {
+    return await publicClient.readContract({
+      abi: IMPLEMENTATION_ABI,
+      functionName: 'isInitialized',
+      args: [],
+      address: userAddress as any,
+    });
+  } catch (e) {
+    console.log('Error checking isInitialized: ', e)
+    return false;
+  }
+}
+
 export async function initializeAccount(walletClient: WalletClient, userAddress: string, authorization: SignAuthorizationReturnType) {
+  const isAccountInitialized = await isInitialized(userAddress)
+  if (isAccountInitialized) {
+    console.log('Account already initialized')
+    return zeroHash;
+  }
+
   const contractAddress = await calculateContractAddress(userAddress as any)
   console.log('Predicted contract address: ', contractAddress )
   const scope = BigInt(hashEndpointWithScope(contractAddress, SCOPE_SEED))
@@ -77,18 +99,8 @@ export async function initializeAccount(walletClient: WalletClient, userAddress:
   // Wait a bit, while transaction being settled
   await new Promise((r) => setTimeout(r, 5000))
 
-  const publicClient = createPublicClient({
-    chain: celoAlfajores,
-    transport: http()
-  })
-
-  const isInitializedAfter = await publicClient.readContract({
-    abi: IMPLEMENTATION_ABI,
-    functionName: 'isInitialized',
-    args: [],
-    address: userAddress as any,
-  })
-  console.log('Is initialized: ', isInitializedAfter)
+  const isProperlyInitialized = await isInitialized(userAddress)
+  console.log('Is initialized correctly: ', isProperlyInitialized)
 
   return hash;
 }
