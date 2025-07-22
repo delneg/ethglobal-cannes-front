@@ -5,7 +5,13 @@ import Header from '../components/Header';
 import {SelfApp, SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
 import {useSignMessage} from '@privy-io/react-auth';
 import {useClientContext} from "../context/ClientContext.tsx";
-import {recoverTestTx, getExplorerUrl, getSmartAccountImplementationAddress, initializeRecoveryMode} from "../utils/contractStuff.ts";
+import {
+  recoverTestTx,
+  getExplorerUrl,
+  getSmartAccountImplementationAddress,
+  initializeRecoveryMode,
+  isInitialized
+} from "../utils/contractStuff.ts";
 import { privateKeyToAccount } from 'viem/accounts';
 import {celoAlfajores} from "viem/chains";
 import {useMutation} from "@tanstack/react-query";
@@ -35,10 +41,54 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   const [initiatedRecovery, setInitiatedRecovery] = useState(false);
   const [transactionURL, setTransactionURL] = useState("");
 
+  // Input field and validation state
+  const [walletAddressInput, setWalletAddressInput] = useState("");
+  const [isValidAddress, setIsValidAddress] = useState<boolean | null>(null);
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationError, setValidationError] = useState("");
+
   // const {contractAddress} = useClientContext();
 
   const handleConnectNewWallet = () => {
     onAuth();
+  };
+
+  // Validation function for wallet address
+  const validateWalletAddress = async (address: string): Promise<boolean> => {
+    // Basic address format validation
+    if (!address || !address.match(/^0x[a-fA-F0-9]{40}$/)) {
+      throw new Error("Invalid address format");
+    }
+
+    // Check if the address is initialized (can be recovered)
+    const initialized = await isInitialized(address);
+    if (!initialized) {
+      throw new Error("Wallet is not initialized or cannot be recovered");
+    }
+
+    return true;
+  };
+
+  // Handle validation button click
+  const handleValidateAddress = async () => {
+    if (!walletAddressInput.trim()) {
+      setValidationError("Please enter a wallet address");
+      return;
+    }
+
+    setIsValidating(true);
+    setValidationError("");
+    setIsValidAddress(null);
+
+    try {
+      await validateWalletAddress(walletAddressInput.trim());
+      setIsValidAddress(true);
+    } catch (error: any) {
+      setIsValidAddress(false);
+      setValidationError(error.message || "Validation failed");
+    } finally {
+      setIsValidating(false);
+    }
   };
 
   const sendTxMutation = useMutation({
@@ -49,7 +99,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
         chain: celoAlfajores,
         transport: http(),
       });
-      const tx = await recoverTestTx(walletClient, userAddress!, beneficiaryAddress)
+      const tx = await recoverTestTx(walletClient, walletAddressInput.trim(), beneficiaryAddress)
       console.log("Recover tx url", getExplorerUrl(tx))
       return tx;
     },
@@ -75,7 +125,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
         chain: celoAlfajores,
         transport: http()
       })
-      const tx = await initializeRecoveryMode(walletClient, userAddress!, beneficiaryAddress)
+      const tx = await initializeRecoveryMode(walletClient, walletAddressInput.trim(), beneficiaryAddress)
       await publicClient.waitForTransactionReceipt({ hash: tx });
       console.log("Initiate recovery tx url", getExplorerUrl(tx))
       return tx;
@@ -95,20 +145,25 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
 
 
   useEffect(() => {
+    if (!isValidAddress || !walletAddressInput.trim()) {
+      setSelfApp(undefined);
+      return;
+    }
+
     let active = true
     load()
     return () => { active = false }
 
     async function load() {
       setSelfApp(undefined);
-      const contractAddress = await getSmartAccountImplementationAddress(userAddress!);
+      const contractAddress = await getSmartAccountImplementationAddress(walletAddressInput.trim());
       if (!active) { return }
       const app = new SelfAppBuilder({
         appName: "My App (Dev)",
         scope: "my-app-dev",
         endpoint: contractAddress,
         endpointType: "staging_celo", // Use testnet
-        userId: userAddress!,
+        userId: walletAddressInput.trim(),
         userIdType: "hex",
         version: 2,
         userDefinedData: beneficiaryAddress,
@@ -119,7 +174,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
       }).build();
       setSelfApp(app);
     }
-  }, [userAddress])
+  }, [isValidAddress, walletAddressInput])
 
 
 
@@ -147,7 +202,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
 
         {/* Recovery Steps */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-          {/* Step 1: Connect New Wallet */}
+          {/* Step 1: Connect Wallet */}
           <div className="card">
             <div className="flex items-center gap-4 mb-6">
               <div className="icon-container icon-blue">
@@ -155,32 +210,63 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
               </div>
               <h2 className="text-2xl font-semibold text-gray-900">Connect New Wallet</h2>
             </div>
+            <p className="text-gray-600 mb-8">
+              Input wallet address you want to recover.
+            </p>
 
-            {isAuthenticated && userAddress ? (
-              <div className="status-success">
-                <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div style={{ marginBottom: '16px' }}>
+              <input
+                type="text"
+                className="input-field"
+                placeholder="0x1234...abcd (Enter wallet address to recover)"
+                value={walletAddressInput}
+                onChange={(e) => {
+                  setWalletAddressInput(e.target.value);
+                  // Reset validation state when input changes
+                  setIsValidAddress(null);
+                  setValidationError("");
+                }}
+                disabled={isValidating}
+              />
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <button
+                onClick={handleValidateAddress}
+                disabled={isValidating || !walletAddressInput.trim()}
+                className="btn-primary"
+                style={{
+                  opacity: (isValidating || !walletAddressInput.trim()) ? 0.5 : 1,
+                  cursor: (isValidating || !walletAddressInput.trim()) ? 'not-allowed' : 'pointer',
+                  minWidth: '120px'
+                }}
+              >
+                {isValidating ? 'Checking...' : 'Validate'}
+              </button>
+            </div>
+
+            {/* Validation Status */}
+            {isValidAddress === true && (
+              <div className="validation-status success">
+                <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span style={{ fontWeight: '500' }}>New wallet connected: {userAddress.slice(0, 6)}...{userAddress.slice(-4)}</span>
+                <span>Wallet address is valid and can be recovered</span>
               </div>
-            ) : isAuthenticated && !userAddress ? (
-              <div style={{ color: 'var(--color-text-secondary)', fontSize: '14px' }}>
-                Loading wallet address...
+            )}
+
+            {isValidAddress === false && (
+              <div className="validation-status error">
+                <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span>{validationError}</span>
               </div>
-            ) : (
-              <button
-                onClick={handleConnectNewWallet}
-                className="btn-primary"
-                disabled={!ready}
-                style={{ opacity: ready ? 1 : 0.6 }}
-              >
-                {!ready ? 'Loading...' : 'Connect New Wallet'}
-              </button>
             )}
           </div>
 
           {/* Step 2: Start Recovery */}
-          <div className="card" style={{ opacity: !(isAuthenticated && userAddress) ? 0.5 : 1 }}>
+          <div className="card" style={{ opacity: !isValidAddress ? 0.5 : 1 }}>
             <div className="flex items-center gap-4 mb-6">
               <div className="icon-container icon-purple">
                 <span style={{ color: 'white', fontWeight: 'bold' }}>2</span>
@@ -192,11 +278,11 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
               <div>
                 <button
                   onClick={() => initiateRecoveryMutation.mutate()}
-                  disabled={!isAuthenticated || initiateRecoveryMutation.isPending}
+                  disabled={!isValidAddress || initiateRecoveryMutation.isPending}
                   className="btn-primary"
                   style={{
-                    opacity: (!isAuthenticated || initiateRecoveryMutation.isPending) ? 0.5 : 1,
-                    cursor: (!isAuthenticated || initiateRecoveryMutation.isPending) ? 'not-allowed' : 'pointer'
+                    opacity: (!isValidAddress || initiateRecoveryMutation.isPending) ? 0.5 : 1,
+                    cursor: (!isValidAddress || initiateRecoveryMutation.isPending) ? 'not-allowed' : 'pointer'
                   }}
                 >
                   {initiateRecoveryMutation.isPending ? 'Loading...' : 'Initiate Recovery'}
@@ -213,7 +299,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                 )}
               </div>
             )}
-            {selfApp && userAddress && !ownershipTransferred && initiatedRecovery &&
+            {selfApp && walletAddressInput && !ownershipTransferred && initiatedRecovery &&
                 <div className="text-center">
                   <SelfQRcodeWrapper
                       selfApp={selfApp}
