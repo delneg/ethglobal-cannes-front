@@ -28,8 +28,12 @@ contract SelfProtocolAccount {
         emit Initialized(address(wrapper));
     }
 
-    function isInitialized() public view returns (bool) {
+    function isWraperAttached() public view returns (bool) {
         return address(wrapper) != address(0);
+    }
+
+    function isInitialized() public view returns (bool) {
+        return wrapper.masterNullifier() != 0;
     }
 
     function getAllowedSigner() public view returns (address) {
