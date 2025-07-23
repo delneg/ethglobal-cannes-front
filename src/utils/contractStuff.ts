@@ -1,4 +1,5 @@
 import {
+  Address,
   createPublicClient,
   getContractAddress,
   http,
@@ -66,7 +67,7 @@ export async function isInitialized(userAddress: string) {
       abi: IMPLEMENTATION_ABI,
       functionName: 'isInitialized',
       args: [],
-      address: userAddress as any,
+      address: userAddress as Address,
     });
   } catch (e) {
     console.log('Error checking isInitialized: ', e)

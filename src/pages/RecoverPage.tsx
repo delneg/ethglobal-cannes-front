@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import {createPublicClient, createWalletClient, EIP1193Provider, http} from 'viem';
+import {createPublicClient, createWalletClient, EIP1193Provider, http, isAddress, isHex} from 'viem';
 import Header from '../components/Header';
 import {SelfApp, SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
 import {useSignMessage} from '@privy-io/react-auth';
@@ -80,15 +80,23 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
     setValidationError("");
     setIsValidAddress(null);
 
-    try {
-      await validateWalletAddress(walletAddressInput.trim());
-      setIsValidAddress(true);
-    } catch (error: any) {
+    if (!isAddress(walletAddressInput)) {
       setIsValidAddress(false);
-      setValidationError(error.message || "Validation failed");
-    } finally {
+      setValidationError("Invalid address");
       setIsValidating(false);
+      return;
     }
+
+    const isAccountInitialized = await isInitialized(walletAddressInput)
+    if (!isAccountInitialized) {
+      setIsValidAddress(false);
+      setValidationError("Wallet is not initialized. You should setup recovery first.");
+      setIsValidating(false);
+      return;
+    }
+
+    setIsValidAddress(true);
+    setIsValidating(false);
   };
 
   const sendTxMutation = useMutation({
