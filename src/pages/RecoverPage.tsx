@@ -49,26 +49,6 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
 
   // const {contractAddress} = useClientContext();
 
-  const handleConnectNewWallet = () => {
-    onAuth();
-  };
-
-  // Validation function for wallet address
-  const validateWalletAddress = async (address: string): Promise<boolean> => {
-    // Basic address format validation
-    if (!address || !address.match(/^0x[a-fA-F0-9]{40}$/)) {
-      throw new Error("Invalid address format");
-    }
-
-    // Check if the address is initialized (can be recovered)
-    const initialized = await isInitialized(address);
-    if (!initialized) {
-      throw new Error("Wallet is not initialized or cannot be recovered");
-    }
-
-    return true;
-  };
-
   // Handle validation button click
   const handleValidateAddress = async () => {
     if (!walletAddressInput.trim()) {
