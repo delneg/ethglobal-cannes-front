@@ -6,7 +6,7 @@ import {
   parseAbi,
   PrivateKeyAccount,
   SignAuthorizationReturnType,
-  WalletClient, zeroHash
+  WalletClient, zeroAddress, zeroHash
 } from "viem";
 import {celoAlfajores} from "viem/chains";
 import {hashEndpointWithScope} from "./scopeGenerator.ts";
@@ -25,8 +25,20 @@ export const IMPLEMENTATION_ABI = parseAbi([
   "function proposeRecovery(address _newSigner) public"
 ])
 
+export const REGISTRY_ABI = parseAbi([
+  "function registerRecovery(address recoveryAddress, bytes memory signature) external",
+  "function cleanupRecovery(bytes memory signature) external",
+  "function getRecoveryAddress(address user) external view returns (address)",
+  "event RecoveryRegistered(address indexed user, address indexed recoveryAddress)",
+  "event RecoveryCleanedUp(address indexed user)",
+  "error InvalidSignature()",
+  "error ZeroAddress()",
+  "error NoRecoveryAddressSet()"
+])
+
 export const IS_MAINNET = import.meta.env.VITE_IS_PRODUCTION
 export const IMPLEMENTATION_ADDRESS = import.meta.env.VITE_IMPLEMENTATION_ADDRESS
+export const REGISTRY_ADDRESS = import.meta.env.VITE_REGISTRY_ADDRESS
 export const SCOPE_SEED = "my-app-dev"
 export const calculateContractAddress = async (deployerAddress: `0x${string}`) => {
   const publicClient = createPublicClient({
@@ -72,6 +84,25 @@ export async function isInitialized(userAddress: string) {
   } catch (e) {
     console.log('Error checking isInitialized: ', e)
     return false;
+  }
+}
+
+export async function getRecoveryWrapperAddress(userAddress: Address) {
+  const publicClient = createPublicClient({
+    chain: celoAlfajores,
+    transport: http()
+  })
+
+  try {
+    return await publicClient.readContract({
+      abi: REGISTRY_ABI,
+      functionName: 'getRecoveryAddress',
+      args: [userAddress],
+      address: REGISTRY_ADDRESS as Address,
+    });
+  } catch (e) {
+    console.log('Error checking isInitialized: ', e)
+    return zeroAddress;
   }
 }
 
