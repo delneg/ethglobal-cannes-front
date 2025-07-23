@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import './tasks/deploy'
-import './tasks/deploy-registry'
 
 const config: HardhatUserConfig = {
   solidity: "0.8.28",

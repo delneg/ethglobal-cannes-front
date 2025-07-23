@@ -213,7 +213,6 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
               </div>
           }
 
-
           {/* Final Step: Success */}
           {recoveryBound && (
             <div className="card text-center" style={{

@@ -28,7 +28,7 @@ contract SelfProtocolAccount {
         emit Initialized(address(wrapper));
     }
 
-    function isWraperAttached() public view returns (bool) {
+    function isWrapperAttached() public view returns (bool) {
         return address(wrapper) != address(0);
     }
 
