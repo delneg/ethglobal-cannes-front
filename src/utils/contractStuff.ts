@@ -22,7 +22,7 @@ export const IMPLEMENTATION_ABI = parseAbi([
   "function isInitialized() public view returns (bool)",
   "function recover(address to, uint256 value, bytes calldata data) external",
   "function wrapper() public view returns (address)",
-  "function proposeRecovery(address _newSigner) public"
+  "function enableRecoveryMode() public"
 ])
 
 export const REGISTRY_ABI = parseAbi([
@@ -141,8 +141,8 @@ export async function initializeRecoveryMode(walletClient: WalletClient, userAdd
   const initiateRecoveryTxHash = await walletClient.writeContract({
     abi: IMPLEMENTATION_ABI,
     address: userAddress as any,
-    functionName: "proposeRecovery",
-    args: [beneficiaryAddress as any]
+    functionName: "enableRecoveryMode",
+    args: []
   } as any)
   console.log('Recovery proposed: ', initiateRecoveryTxHash)
   return initiateRecoveryTxHash
