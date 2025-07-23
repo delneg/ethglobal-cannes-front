@@ -77,6 +77,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
           IMPLEMENTATION_ADDRESS as Address
       )
       const contractAddress = await calculateContractAddress(userAddress as any)
+      console.log('CONTRACT ADDRESS TO USE IN SELF APP: ', contractAddress)
       setContractAddress(contractAddress);
 
       const acc = await initializeAccount(paymasterWalletClient, userAddress!, auth);
@@ -90,6 +91,8 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
       console.error('Error binding code:', error);
     }
   });
+
+  // 0xB367738cc7760fAf9563751De4aE1B16E560c2D5
 
   const selfApp = useMemo(() => {
     if (!userAddress || userAddress == '') return null;

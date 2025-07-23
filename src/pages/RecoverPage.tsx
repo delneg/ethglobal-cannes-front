@@ -10,7 +10,7 @@ import {
   getExplorerUrl,
   getSmartAccountImplementationAddress,
   initializeRecoveryMode,
-  isInitialized
+  isInitialized, getMasterNullifier
 } from "../utils/contractStuff.ts";
 import { privateKeyToAccount } from 'viem/accounts';
 import {celoAlfajores} from "viem/chains";
@@ -71,6 +71,15 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
     if (!isAccountInitialized) {
       setIsValidAddress(false);
       setValidationError("Wallet is not initialized. You should setup recovery first.");
+      setIsValidating(false);
+      return;
+    }
+
+    const nullifierAttached = await getMasterNullifier(walletAddressInput)
+    console.log('Nullifier attached: ', nullifierAttached)
+    if (nullifierAttached == 0n) {
+      setIsValidAddress(false);
+      setValidationError("Passport was not attached. You should finish setup first.");
       setIsValidating(false);
       return;
     }

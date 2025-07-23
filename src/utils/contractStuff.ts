@@ -4,9 +4,9 @@ import {
   getContractAddress,
   http,
   parseAbi,
-  PrivateKeyAccount,
   SignAuthorizationReturnType,
-  WalletClient, zeroAddress, zeroHash
+  WalletClient,
+  zeroHash
 } from "viem";
 import {celoAlfajores} from "viem/chains";
 import {hashEndpointWithScope} from "./scopeGenerator.ts";
@@ -25,20 +25,11 @@ export const IMPLEMENTATION_ABI = parseAbi([
   "function enableRecoveryMode() public"
 ])
 
-export const REGISTRY_ABI = parseAbi([
-  "function registerRecovery(address recoveryAddress, bytes memory signature) external",
-  "function cleanupRecovery(bytes memory signature) external",
-  "function getRecoveryAddress(address user) external view returns (address)",
-  "event RecoveryRegistered(address indexed user, address indexed recoveryAddress)",
-  "event RecoveryCleanedUp(address indexed user)",
-  "error InvalidSignature()",
-  "error ZeroAddress()",
-  "error NoRecoveryAddressSet()"
+export const WRAPPER_ABI = parseAbi([
+  "function getMasterNullifier() public view returns (uint256)"
 ])
 
-export const IS_MAINNET = import.meta.env.VITE_IS_PRODUCTION
 export const IMPLEMENTATION_ADDRESS = import.meta.env.VITE_IMPLEMENTATION_ADDRESS
-export const REGISTRY_ADDRESS = import.meta.env.VITE_REGISTRY_ADDRESS
 export const SCOPE_SEED = "my-app-dev"
 export const calculateContractAddress = async (deployerAddress: `0x${string}`) => {
   const publicClient = createPublicClient({
@@ -87,6 +78,31 @@ export async function isInitialized(userAddress: string) {
   }
 }
 
+export async function getMasterNullifier(userAddress: string) {
+  const publicClient = createPublicClient({
+    chain: celoAlfajores,
+    transport: http()
+  })
+  try {
+    const wrapperAddress = await publicClient.readContract({
+      abi: IMPLEMENTATION_ABI,
+      functionName: 'wrapper',
+      args: [],
+      address: userAddress as Address,
+    });
+
+    return await publicClient.readContract({
+      abi: WRAPPER_ABI,
+      functionName: 'getMasterNullifier',
+      args: [],
+      address: wrapperAddress as Address,
+    });
+  } catch (e) {
+    console.log('Error checking isInitialized: ', e)
+    return 0n;
+  }
+}
+
 // export async function getRecoveryWrapperAddress(userAddress: Address) {
 //   const publicClient = createPublicClient({
 //     chain: celoAlfajores,
@@ -127,11 +143,11 @@ export async function isInitialized(userAddress: string) {
 // }
 
 export async function initializeAccount(walletClient: WalletClient, userAddress: string, authorization: SignAuthorizationReturnType) {
-  const isAccountInitialized = await isInitialized(userAddress)
-  if (isAccountInitialized) {
-    console.log('Account already initialized')
-    return zeroHash;
-  }
+  // const isAccountInitialized = await isInitialized(userAddress)
+  // if (isAccountInitialized) {
+  //   console.log('Account already initialized')
+  //   return zeroHash;
+  // }
 
   const contractAddress = await calculateContractAddress(userAddress as any)
   console.log('Predicted contract address: ', contractAddress )
