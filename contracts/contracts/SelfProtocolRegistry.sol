@@ -2,6 +2,7 @@
 pragma solidity ^0.8.28;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {MessageHashUtils} from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 /**
  * @title SelfProtocolContract
@@ -9,6 +10,7 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
  */
 contract SelfProtocolRegistry {
     using ECDSA for bytes32;
+    using MessageHashUtils for bytes32;
 
     // Mapping from user address to their recovery address
     mapping(address => address) private recoveryAddresses;
