@@ -15,6 +15,10 @@ If successful, a new signer is attached to the account, allowing them to withdra
 
 App was deployed to Cloudflare Pages and accessible at https://ethglobal-cannes-front.pages.dev/. 
 
+Testnet contracts:
+* Registry: 0x7212c3a1a489027f72940b1accba33016c088988
+* Implementation: 0x09Dd3e18606e233073AA3Ff9a7e0D665a52344E4
+
 ## Build
 
 ### Build contracts
