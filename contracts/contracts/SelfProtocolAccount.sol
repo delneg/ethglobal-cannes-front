@@ -17,7 +17,7 @@ contract SelfProtocolAccount {
     }
 
     function initialize(uint256 scope, bool isProduction) public {
-        require(msg.sender == address(this), "Only EOA can initialize");
+//        require(msg.sender == address(this), "Only EOA can initialize");
 
         if (isProduction) {
             wrapper = new SelfProtocolWrapper(MAINNET_IDENTITY_HUB_ADDRESS, scope);
@@ -28,12 +28,8 @@ contract SelfProtocolAccount {
         emit Initialized(address(wrapper));
     }
 
-    function isWrapperAttached() public view returns (bool) {
-        return address(wrapper) != address(0);
-    }
-
     function isInitialized() public view returns (bool) {
-        return wrapper.masterNullifier() != 0;
+        return address(wrapper) != address(0);
     }
 
     function getAllowedSigner() public view returns (address) {

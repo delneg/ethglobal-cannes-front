@@ -60,14 +60,14 @@ export const calculateContractAddress = async (deployerAddress: `0x${string}`) =
   return contractAddress
 }
 
-export async function getOmnichainAuthorization(user: PrivateKeyAccount) {
-  const authorization = await user.signAuthorization({
-    contractAddress: IMPLEMENTATION_ADDRESS as any,
-    chainId: 0,
-    nonce: 0
-  })
-  return authorization;
-}
+// export async function getOmnichainAuthorization(user: PrivateKeyAccount) {
+//   const authorization = await user.signAuthorization({
+//     contractAddress: IMPLEMENTATION_ADDRESS as any,
+//     chainId: 0,
+//     nonce: 0
+//   })
+//   return authorization;
+// }
 
 export async function isInitialized(userAddress: string) {
   const publicClient = createPublicClient({
@@ -87,24 +87,44 @@ export async function isInitialized(userAddress: string) {
   }
 }
 
-export async function getRecoveryWrapperAddress(userAddress: Address) {
-  const publicClient = createPublicClient({
-    chain: celoAlfajores,
-    transport: http()
-  })
+// export async function getRecoveryWrapperAddress(userAddress: Address) {
+//   const publicClient = createPublicClient({
+//     chain: celoAlfajores,
+//     transport: http()
+//   })
+//
+//   try {
+//     return await publicClient.readContract({
+//       abi: REGISTRY_ABI,
+//       functionName: 'getRecoveryAddress',
+//       args: [userAddress],
+//       address: REGISTRY_ADDRESS as Address,
+//     });
+//   } catch (e) {
+//     console.log('Error checking isInitialized: ', e)
+//     return zeroAddress;
+//   }
+// }
 
-  try {
-    return await publicClient.readContract({
-      abi: REGISTRY_ABI,
-      functionName: 'getRecoveryAddress',
-      args: [userAddress],
-      address: REGISTRY_ADDRESS as Address,
-    });
-  } catch (e) {
-    console.log('Error checking isInitialized: ', e)
-    return zeroAddress;
-  }
-}
+// export async function dropAuth(walletClient: WalletClient, userAddress: string, authorization: SignAuthorizationReturnType) {
+//   const hash = await walletClient.sendTransaction({
+//     to: zeroAddress,
+//     value: 0n,
+//     authorizationList: [authorization]
+//   } as any)
+//   console.log('Drop auth tx hash: ', hash)
+//
+//   const publicClient = createPublicClient({
+//     chain: celoAlfajores,
+//     transport: http()
+//   })
+//
+//   await publicClient.waitForTransactionReceipt({
+//     hash
+//   })
+//
+//   return hash;
+// }
 
 export async function initializeAccount(walletClient: WalletClient, userAddress: string, authorization: SignAuthorizationReturnType) {
   const isAccountInitialized = await isInitialized(userAddress)
@@ -128,8 +148,14 @@ export async function initializeAccount(walletClient: WalletClient, userAddress:
   } as any)
   console.log('Transaction hash:', hash)
 
-  // Wait a bit, while transaction being settled
-  await new Promise((r) => setTimeout(r, 5000))
+  const publicClient = createPublicClient({
+    chain: celoAlfajores,
+    transport: http()
+  })
+
+  await publicClient.waitForTransactionReceipt({
+    hash
+  })
 
   const isProperlyInitialized = await isInitialized(userAddress)
   console.log('Is initialized correctly: ', isProperlyInitialized)

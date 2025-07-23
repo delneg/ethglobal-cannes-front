@@ -1,6 +1,6 @@
 import React, {useMemo, useState} from 'react';
 import {useNavigate} from 'react-router-dom';
-import {Address, Chain, createPublicClient, EIP1193Provider, http} from 'viem';
+import {Address, Chain, createPublicClient, createWalletClient, custom, EIP1193Provider, http, zeroAddress} from 'viem';
 import {SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
 import {
   calculateContractAddress,
@@ -39,17 +39,18 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
   const handleConnectWallet = () => {
     onAuth();
   };
+  const {wallets} = useWallets();
 
   const {signAuthorization} = useSign7702Authorization();
 
-  const createAuthorization = async (userAddress: Address, chain: Chain) => {
+  const createAuthorization = async (userAddress: Address, chain: Chain, implementationAddress: Address) => {
     const publicClient = createPublicClient({
       transport: http(),
       chain: celoAlfajores,
     })
     const userNonce = await publicClient.getTransactionCount({address: userAddress})
     return await signAuthorization({
-      contractAddress: IMPLEMENTATION_ADDRESS as any,
+      contractAddress: implementationAddress,
       chainId: 0,
       nonce: userNonce,
     })
@@ -57,13 +58,27 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
 
   const bindCodeMutation = useMutation({
     mutationFn: async () => {
-      const auth = await createAuthorization(userAddress as Address, celoAlfajores)
+      const paymasterWalletClient = getMockedPaymasterWalletClient()
 
+      // // Drop old auth
+      // const zeroAuth = await createAuthorization(
+      //     userAddress as Address,
+      //     celoAlfajores,
+      //     zeroAddress
+      // )
+      // await dropAuth(paymasterWalletClient, userAddress as Address, zeroAuth)
+      // console.log('Removing previous 7702 authorization for user', userAddress)
+
+      // Setup new auth and initialize account
       console.log('Initializing account for user', userAddress)
+      const auth = await createAuthorization(
+          userAddress as Address,
+          celoAlfajores,
+          IMPLEMENTATION_ADDRESS as Address
+      )
       const contractAddress = await calculateContractAddress(userAddress as any)
       setContractAddress(contractAddress);
 
-      const paymasterWalletClient = getMockedPaymasterWalletClient()
       const acc = await initializeAccount(paymasterWalletClient, userAddress!, auth);
       console.log("Account initialized", getExplorerUrl(acc))
       return acc;

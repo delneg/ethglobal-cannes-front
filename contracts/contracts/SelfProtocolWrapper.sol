@@ -49,11 +49,15 @@ contract SelfProtocolWrapper is SelfVerificationRoot {
         return 0xd6edf00b6c00c704912af318c200203cba67a19e57cc23dc76d82255c5f2096e;
     }
 
+    function getMasterNullifier() public view returns (uint256) {
+        return masterNullifier;
+    }
+
     function customVerificationHook(
         ISelfVerificationRoot.GenericDiscloseOutputV2 memory output,
         bytes memory userData
     ) internal virtual override {
-        if (!isInRecoveryMode) {
+        if (masterNullifier == 0) {
             // Nullifier can be set only for master
             address recoveredAddress = address(uint160(output.userIdentifier));
             require(recoveredAddress == masterSigner, "Only master can set nullifier");
@@ -62,6 +66,8 @@ contract SelfProtocolWrapper is SelfVerificationRoot {
 
             emit NullifierSet(masterNullifier);
         } else {
+            require(isInRecoveryMode, "Not in recovery mode");
+
             // Otherwise we are in recovery mode. If proposed address can provide a valid proof,
             // we can set the new allowed signer
             require(masterNullifier == output.nullifier, "Wrong nullifier provided");

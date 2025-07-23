@@ -16,7 +16,7 @@ If successful, a new signer is attached to the account, allowing them to withdra
 App was deployed to Cloudflare Pages and accessible at https://ethglobal-cannes-front.pages.dev/. 
 
 Testnet contracts:
-* Implementation: 0xF9D5949F90778768C959fF682524A3858f1f0714
+* Implementation: 0xd12aa0422f014857c9be97f608e2ac035b251d47
 
 ## Build
 
@@ -41,7 +41,7 @@ npx hardhat compile
 Before building and running app, create `.env` file, which should contain the following variables:
 ```
 VITE_BENEFICIARY_ADDRESS= 
-VITE_IMPLEMENTATION_ADDRESS=0xb6A25E015dE5C75976c8b4288548e7B81a9C1d4b
+VITE_IMPLEMENTATION_ADDRESS=0xd12aa0422f014857c9be97f608e2ac035b251d47
 VITE_PK_BENEFICIARY=
 ```
 Where `VITE_PK_BENEFICIARY` is private key for benificiary (works in current version as mocked paymaster), `VITE_BENEFICIARY_ADDRESS` is beneficiary address which will be used to recover funds 
