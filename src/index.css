@@ -403,6 +403,10 @@ body {
   background: linear-gradient(135deg, #f59e0b 0%, var(--color-primary) 100%);
 }
 
+.icon-red {
+  background: linear-gradient(135deg, var(--color-error) 0%, #dc2626 100%);
+}
+
 /* Gradient Text */
 .gradient-text {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 50%, var(--color-primary) 100%);

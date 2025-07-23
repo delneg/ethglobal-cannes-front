@@ -39,7 +39,13 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   const navigate = useNavigate();
   const [ownershipTransferred, setOwnershipTransferred] = useState(false);
   const [initiatedRecovery, setInitiatedRecovery] = useState(false);
+  const [signerAdded, setSignerAdded] = useState(false);
   const [transactionURL, setTransactionURL] = useState("");
+
+  // Signer address input state
+  const [signerAddressInput, setSignerAddressInput] = useState("");
+  const [isValidSignerAddress, setIsValidSignerAddress] = useState<boolean | null>(null);
+  const [signerValidationError, setSignerValidationError] = useState("");
 
   // Input field and validation state
   const [walletAddressInput, setWalletAddressInput] = useState("");
@@ -86,6 +92,24 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
 
     setIsValidAddress(true);
     setIsValidating(false);
+  };
+
+  // Handle signer address validation
+  const handleValidateSignerAddress = () => {
+    if (!signerAddressInput.trim()) {
+      setSignerValidationError("Please enter a signer address");
+      return;
+    }
+
+    if (!isAddress(signerAddressInput)) {
+      setIsValidSignerAddress(false);
+      setSignerValidationError("Invalid signer address");
+      return;
+    }
+
+    setIsValidSignerAddress(true);
+    setSignerValidationError("");
+    setSignerAdded(true);
   };
 
   const sendTxMutation = useMutation({
@@ -262,14 +286,17 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
             )}
           </div>
 
-          {/* Step 2: Start Recovery */}
+          {/* Step 2: Initiate Recovery */}
           <div className="card" style={{ opacity: !isValidAddress ? 0.5 : 1 }}>
             <div className="flex items-center gap-4 mb-6">
               <div className="icon-container icon-purple">
                 <span style={{ color: 'white', fontWeight: 'bold' }}>2</span>
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900">Start Recovery Process</h2>
+              <h2 className="text-2xl font-semibold text-gray-900">Initiate recovery</h2>
             </div>
+            <p className="text-gray-600 mb-8">
+              Click confirm to start the recovery process for your wallet.
+            </p>
 
             {!initiatedRecovery && (
               <div>
@@ -282,7 +309,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                     cursor: (!isValidAddress || initiateRecoveryMutation.isPending) ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  {initiateRecoveryMutation.isPending ? 'Loading...' : 'Initiate Recovery'}
+                  {initiateRecoveryMutation.isPending ? 'Loading...' : 'Confirm'}
                 </button>
                 {initiateRecoveryMutation.isError && (
                   <div style={{
@@ -296,7 +323,97 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                 )}
               </div>
             )}
-            {selfApp && walletAddressInput && !ownershipTransferred && initiatedRecovery &&
+
+            {initiatedRecovery && (
+              <div className="validation-status success">
+                <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Recovery process initiated successfully</span>
+              </div>
+            )}
+          </div>
+
+          {/* Step 3: Add Allowed Signer */}
+          <div className="card" style={{ opacity: !initiatedRecovery ? 0.5 : 1 }}>
+            <div className="flex items-center gap-4 mb-6">
+              <div className="icon-container icon-green">
+                <span style={{ color: 'white', fontWeight: 'bold' }}>3</span>
+              </div>
+              <h2 className="text-2xl font-semibold text-gray-900">Add allowed signer</h2>
+            </div>
+            <p className="text-gray-600 mb-8">
+              Enter the address that will be allowed to sign transactions for the recovered wallet.
+            </p>
+
+            {!signerAdded && (
+              <div>
+                <div style={{ marginBottom: '16px' }}>
+                  <input
+                    type="text"
+                    className="input-field"
+                    placeholder="0x1234...abcd (Enter signer address)"
+                    value={signerAddressInput}
+                    onChange={(e) => {
+                      setSignerAddressInput(e.target.value);
+                      // Reset validation state when input changes
+                      setIsValidSignerAddress(null);
+                      setSignerValidationError("");
+                    }}
+                    disabled={!initiatedRecovery}
+                  />
+                </div>
+
+                <div style={{ marginBottom: '16px' }}>
+                  <button
+                    onClick={handleValidateSignerAddress}
+                    disabled={!initiatedRecovery || !signerAddressInput.trim()}
+                    className="btn-primary"
+                    style={{
+                      opacity: (!initiatedRecovery || !signerAddressInput.trim()) ? 0.5 : 1,
+                      cursor: (!initiatedRecovery || !signerAddressInput.trim()) ? 'not-allowed' : 'pointer',
+                      minWidth: '120px'
+                    }}
+                  >
+                    Confirm
+                  </button>
+                </div>
+
+                {/* Signer Validation Status */}
+                {isValidSignerAddress === false && (
+                  <div className="validation-status error">
+                    <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span>{signerValidationError}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {signerAdded && (
+              <div className="validation-status success">
+                <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Signer address added successfully</span>
+              </div>
+            )}
+          </div>
+
+          {/* Step 4: Start Recovery Process */}
+          <div className="card" style={{ opacity: !signerAdded ? 0.5 : 1 }}>
+            <div className="flex items-center gap-4 mb-6">
+              <div className="icon-container icon-orange">
+                <span style={{ color: 'white', fontWeight: 'bold' }}>4</span>
+              </div>
+              <h2 className="text-2xl font-semibold text-gray-900">Start Recovery Process</h2>
+            </div>
+            <p className="text-gray-600 mb-8">
+              Scan the QR code with your Self app to generate a zero-knowledge proof of ownership.
+            </p>
+
+            {selfApp && walletAddressInput && !ownershipTransferred && signerAdded &&
                 <div className="text-center">
                   <SelfQRcodeWrapper
                       selfApp={selfApp}
@@ -315,12 +432,12 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
           </div>
 
 
-          {/* Step 3: Test transaction */}
+          {/* Step 5: Test transaction */}
           {ownershipTransferred && (
             <div className="card">
               <div className="flex items-center gap-4 mb-6">
-                <div className="icon-container icon-orange">
-                  <span style={{ color: 'white', fontWeight: 'bold' }}>3</span>
+                <div className="icon-container icon-red">
+                  <span style={{ color: 'white', fontWeight: 'bold' }}>5</span>
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">Final Verification</h2>
               </div>
