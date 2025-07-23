@@ -17,7 +17,7 @@ contract SelfProtocolAccount {
     }
 
     function initialize(uint256 scope, bool isProduction) public {
-        require(!isInitialized(), "already initialized");
+        require(msg.sender == address(this), "Only EOA can initialize");
 
         if (isProduction) {
             wrapper = new SelfProtocolWrapper(MAINNET_IDENTITY_HUB_ADDRESS, scope);
