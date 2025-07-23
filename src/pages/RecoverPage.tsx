@@ -187,7 +187,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
         userId: walletAddressInput.trim(),
         userIdType: "hex",
         version: 2,
-        userDefinedData: beneficiaryAddress,
+        userDefinedData: signerAddressInput.slice(2),
         disclosures: {
           minimumAge: 11,
           nationality: true,
@@ -195,7 +195,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
       }).build();
       setSelfApp(app);
     }
-  }, [isValidAddress, walletAddressInput])
+  }, [isValidAddress, signerAddressInput])
 
 
 
