@@ -23,8 +23,6 @@ interface SetupRecoveryPageProps {
   eip1193Provider?: EIP1193Provider;
 }
 
-const beneficiaryAddress = import.meta.env.VITE_BENEFICIARY_ADDRESS;
-
 const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
   isAuthenticated,
   user,
@@ -36,7 +34,6 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
   const navigate = useNavigate();
   const [recoveryBound, setRecoveryBound] = useState(false);
   const [boundCode, setBoundCode] = useState(false);
-  const { wallets } = useWallets();
 
   const {contractAddress, setContractAddress} = useClientContext();
   const handleConnectWallet = () => {
@@ -76,7 +73,6 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
     },
     onError: (error) => {
       console.error('Error binding code:', error);
-      // You can add additional error handling here if needed
     }
   });
 
@@ -180,7 +176,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
                         cursor: (!isAuthenticated || bindCodeMutation.isPending) ? 'not-allowed' : 'pointer'
                       }}
                     >
-                      {bindCodeMutation.isPending ? 'Loading...' : 'Show QR for Self App'}
+                      {bindCodeMutation.isPending ? 'Loading...' : 'Initialize Account & Attach Passport'}
                     </button>
                     {bindCodeMutation.isError && (
                       <div style={{
