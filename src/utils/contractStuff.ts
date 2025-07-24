@@ -246,20 +246,3 @@ export async function getRecoveryWrapperAddress(userAddress: string) {
     });
 }
 
-export async function getSmartAccountImplementationAddress(userAddress: string) {
-    const publicClient = createPublicClient({
-        chain: celoAlfajores,
-        transport: http()
-    })
-    console.log('userAddress in get SOA: ', userAddress)
-    const value = await publicClient.readContract({
-        abi: IMPLEMENTATION_ABI,
-        functionName: 'wrapper',
-        args: [],
-        address: userAddress as any,
-    })
-    console.log('current wrapper: ', value)
-
-    return value;
-}
-

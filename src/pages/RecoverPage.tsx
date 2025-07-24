@@ -8,9 +8,8 @@ import {useClientContext} from "../context/ClientContext.tsx";
 import {
   recoverTestTx,
   getExplorerUrl,
-  getSmartAccountImplementationAddress,
   initializeRecoveryMode,
-  isInitialized, getMasterNullifier, isAllowedSigner
+  isInitialized, getMasterNullifier, isAllowedSigner, getRecoveryWrapperAddress
 } from "../utils/contractStuff.ts";
 import { privateKeyToAccount } from 'viem/accounts';
 import {celoAlfajores} from "viem/chains";
@@ -190,7 +189,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
 
     async function load() {
       setSelfApp(undefined);
-      const contractAddress = await getSmartAccountImplementationAddress(walletAddressInput.trim());
+      const contractAddress = await getRecoveryWrapperAddress(walletAddressInput.trim());
       if (!active) { return }
       const app = new SelfAppBuilder({
         appName: "My App (Dev)",
