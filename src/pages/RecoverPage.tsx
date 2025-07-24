@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import {Address, createPublicClient, createWalletClient, EIP1193Provider, http, isAddress, isHex} from 'viem';
+import {Address, createPublicClient, createWalletClient, EIP1193Provider, http, isAddress, isHex, formatEther} from 'viem';
 import Header from '../components/Header';
 import {SelfApp, SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
 import {useSignMessage} from '@privy-io/react-auth';
@@ -55,6 +55,11 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
 
   // Common state
   const [allowedSigner, setAllowedSigner] = useState<Address | null>(null);
+
+  // Balance checking state
+  const [userBalance, setUserBalance] = useState<string | null>(null);
+  const [isCheckingBalance, setIsCheckingBalance] = useState(false);
+  const [balanceError, setBalanceError] = useState<string | null>(null);
 
   // const {contractAddress} = useClientContext();
 
@@ -123,6 +128,36 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
     setIsValidSignerAddress(true);
     setSignerValidationError("");
     setSignerAdded(true);
+  };
+
+  // Handle balance checking
+  const handleCheckBalance = async () => {
+    if (!walletAddressInput.trim()) {
+      setBalanceError("No wallet address provided");
+      return;
+    }
+
+    setIsCheckingBalance(true);
+    setBalanceError(null);
+    setUserBalance(null);
+
+    try {
+      const publicClient = createPublicClient({
+        chain: celoAlfajores,
+        transport: http()
+      });
+
+      const balance = await publicClient.getBalance({
+        address: walletAddressInput.trim() as Address,
+      });
+
+      setUserBalance(formatEther(balance));
+    } catch (error) {
+      console.error('Error checking balance:', error);
+      setBalanceError("Failed to fetch balance. Please try again.");
+    } finally {
+      setIsCheckingBalance(false);
+    }
   };
 
   const sendTxMutation = useMutation({
@@ -577,17 +612,62 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                 </div>
               ) : (
                 <div>
-                  <button
-                    onClick={() => sendTxMutation.mutate()}
-                    disabled={sendTxMutation.isPending}
-                    className="btn-primary"
-                    style={{
-                      opacity: sendTxMutation.isPending ? 0.5 : 1,
-                      cursor: sendTxMutation.isPending ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    {sendTxMutation.isPending ? 'Sending Transaction...' : 'Send Test Transaction'}
-                  </button>
+                  {/* Balance Display */}
+                  {userBalance && (
+                    <div className="validation-status success" style={{ marginBottom: '16px' }}>
+                      <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                      </svg>
+                      <div>
+                        <span style={{ fontWeight: '500' }}>Wallet Balance:</span>
+                        <div style={{
+                          fontFamily: 'monospace',
+                          fontSize: '12px',
+                          marginTop: '4px',
+                          opacity: '0.9'
+                        }}>
+                          {userBalance} CELO
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {balanceError && (
+                    <div className="validation-status error" style={{ marginBottom: '16px' }}>
+                      <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      <span>{balanceError}</span>
+                    </div>
+                  )}
+
+                  {/* Action Buttons */}
+                  <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+                    <button
+                      onClick={handleCheckBalance}
+                      disabled={isCheckingBalance}
+                      className="btn-secondary"
+                      style={{
+                        opacity: isCheckingBalance ? 0.5 : 1,
+                        cursor: isCheckingBalance ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      {isCheckingBalance ? 'Checking...' : 'Check Balance'}
+                    </button>
+
+                    <button
+                      onClick={() => sendTxMutation.mutate()}
+                      disabled={sendTxMutation.isPending}
+                      className="btn-primary"
+                      style={{
+                        opacity: sendTxMutation.isPending ? 0.5 : 1,
+                        cursor: sendTxMutation.isPending ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      {sendTxMutation.isPending ? 'Sending Transaction...' : 'Send Test Transaction'}
+                    </button>
+                  </div>
+
                   {sendTxMutation.isError && (
                     <div style={{
                       color: '#ef4444',
