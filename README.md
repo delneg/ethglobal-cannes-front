@@ -18,6 +18,9 @@ App was deployed to Cloudflare Pages and accessible at https://ethglobal-cannes-
 Testnet contracts:
 * Implementation: 0xd12aa0422f014857c9be97f608e2ac035b251d47
 
+Mainnet contracts:
+* Implementation: 0x7cb5cd4620ce1a9fc8f7fa5307c7602f850a4cd1
+
 ## Build
 
 ### Build contracts
@@ -40,7 +43,6 @@ npx hardhat compile
 
 Before building and running app, create `.env` file, which should contain the following variables:
 ```
-VITE_BENEFICIARY_ADDRESS= 
 VITE_IMPLEMENTATION_ADDRESS=0xd12aa0422f014857c9be97f608e2ac035b251d47
 VITE_PK_BENEFICIARY=
 ```
