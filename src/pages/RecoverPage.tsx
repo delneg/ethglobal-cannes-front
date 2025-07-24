@@ -164,9 +164,11 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
       return tx;
     },
     onSuccess: (tx) => {
+      setRecoveryFinished(true)
       console.log("Recovery finished tx url", getExplorerUrl(tx));
     },
     onError: (error) => {
+      setRecoveryFinished(false)
       console.error('Error sending transaction:', error);
       // You can add additional error handling here if needed
     }
