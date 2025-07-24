@@ -40,6 +40,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   const [ownershipTransferred, setOwnershipTransferred] = useState(false);
   const [initiatedRecovery, setInitiatedRecovery] = useState(false);
   const [signerAdded, setSignerAdded] = useState(false);
+  const [recoveryFinished, setRecoveryFinished] = useState(false);
   const [transactionURL, setTransactionURL] = useState("");
 
   // Signer address input state
@@ -431,13 +432,50 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
             }
           </div>
 
+          {/* Step 5: Finish recovery */}
+          <div className="card" style={{ opacity: !ownershipTransferred ? 0.5 : 1 }}>
+            <div className="flex items-center gap-4 mb-6">
+              <div className="icon-container icon-teal">
+                <span style={{ color: 'white', fontWeight: 'bold' }}>5</span>
+              </div>
+              <h2 className="text-2xl font-semibold text-gray-900">Finish recovery</h2>
+            </div>
+            <p className="text-gray-600 mb-8">
+              Complete the recovery process by confirming the ownership transfer.
+            </p>
 
-          {/* Step 5: Test transaction */}
-          {ownershipTransferred && (
+            {!recoveryFinished && ownershipTransferred && (
+              <div>
+                <button
+                  onClick={() => setRecoveryFinished(true)}
+                  disabled={!ownershipTransferred}
+                  className="btn-primary"
+                  style={{
+                    opacity: !ownershipTransferred ? 0.5 : 1,
+                    cursor: !ownershipTransferred ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  Finish Recovery
+                </button>
+              </div>
+            )}
+
+            {recoveryFinished && (
+              <div className="validation-status success">
+                <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span>Recovery process completed successfully</span>
+              </div>
+            )}
+          </div>
+
+          {/* Step 6: Final Verification */}
+          {recoveryFinished && (
             <div className="card">
               <div className="flex items-center gap-4 mb-6">
                 <div className="icon-container icon-red">
-                  <span style={{ color: 'white', fontWeight: 'bold' }}>5</span>
+                  <span style={{ color: 'white', fontWeight: 'bold' }}>6</span>
                 </div>
                 <h2 className="text-2xl font-semibold text-gray-900">Final Verification</h2>
               </div>
