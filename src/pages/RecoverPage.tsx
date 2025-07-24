@@ -1,9 +1,9 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import {Address, createPublicClient, createWalletClient, EIP1193Provider, http, isAddress, isHex, formatEther} from 'viem';
+import {Address, createPublicClient, createWalletClient, EIP1193Provider, http, isAddress, isHex, formatEther, custom} from 'viem';
 import Header from '../components/Header';
 import {SelfApp, SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
-import {useSignMessage} from '@privy-io/react-auth';
+import {useSignMessage, useLogin, useWallets, useLogout} from '@privy-io/react-auth';
 import {useClientContext} from "../context/ClientContext.tsx";
 import {
   recoverTestTx,
@@ -61,7 +61,18 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   const [isCheckingBalance, setIsCheckingBalance] = useState(false);
   const [balanceError, setBalanceError] = useState<string | null>(null);
 
+  // Signer wallet connection state
+  const [connectedSignerAddress, setConnectedSignerAddress] = useState<Address | null>(null);
+  const [signerWalletClient, setSignerWalletClient] = useState<any>(null);
+  const [isConnectingSigner, setIsConnectingSigner] = useState(false);
+  const [signerConnectionError, setSignerConnectionError] = useState<string | null>(null);
+
   // const {contractAddress} = useClientContext();
+
+  // Privy hooks
+  const {wallets} = useWallets();
+  const {login} = useLogin();
+  const {logout} = useLogout();
 
   // Handle validation button click
   const handleValidateAddress = async () => {
@@ -158,6 +169,45 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
     } finally {
       setIsCheckingBalance(false);
     }
+  };
+
+  // Handle connecting allowed signer wallet
+  const handleConnectAllowedSigner = async () => {
+    if (!walletAddressInput.trim()) {
+      setSignerConnectionError("No wallet address provided");
+      return;
+    }
+
+    if (!allowedSigner) {
+      setSignerConnectionError("No allowed signer found. Complete previous steps first.");
+      return;
+    }
+
+    setIsConnectingSigner(true);
+    setSignerConnectionError(null);
+    setConnectedSignerAddress(null);
+    setSignerWalletClient(null);
+
+    try {
+      // First, disconnect from Privy to ensure clean connection
+      console.log('Disconnecting from Privy...');
+      await logout();
+
+      // Wait a moment for the logout to complete
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Now prompt user to connect their wallet
+      console.log('Prompting user to connect wallet...');
+      await login();
+
+      // After login, the useEffect will handle checking if the connected wallet
+      // is the allowed signer and create the walletClient accordingly
+    } catch (error) {
+      console.error('Error connecting allowed signer wallet:', error);
+      setSignerConnectionError("Failed to connect wallet. Please try again.");
+      setIsConnectingSigner(false);
+    }
+    // Note: setIsConnectingSigner(false) is handled in the useEffect after wallet validation
   };
 
   const sendTxMutation = useMutation({
@@ -271,6 +321,57 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
       setSelfApp(app);
     }
   }, [isValidAddress, signerAddressInput])
+
+  // Handle wallet changes and check if connected wallet is allowed signer
+  useEffect(() => {
+    if (!allowedSigner) return;
+
+    const checkConnectedWallet = async () => {
+      if (wallets.length === 0) {
+        // No wallets connected
+        if (isConnectingSigner) {
+          // If we're in the middle of connecting, this means logout completed
+          // Keep the loading state until login completes
+          return;
+        }
+        return;
+      }
+
+      // Find wallet that matches the allowed signer
+      const matchingWallet = wallets.find(wallet =>
+        wallet.address.toLowerCase() === allowedSigner.toLowerCase()
+      );
+
+      if (matchingWallet && !connectedSignerAddress) {
+        try {
+          const provider = await matchingWallet.getEthereumProvider();
+          const walletClient = createWalletClient({
+            chain: celoAlfajores,
+            transport: custom(provider)
+          });
+
+          setConnectedSignerAddress(matchingWallet.address as Address);
+          setSignerWalletClient(walletClient);
+          setSignerConnectionError(null);
+          setIsConnectingSigner(false); // Connection successful, stop loading
+          console.log('Allowed signer wallet connected:', matchingWallet.address);
+        } catch (error) {
+          console.error('Error setting up wallet client:', error);
+          setSignerConnectionError("Failed to setup wallet client.");
+          setIsConnectingSigner(false);
+        }
+      } else if (wallets.length > 0 && !matchingWallet && isConnectingSigner) {
+        // A wallet was connected but it's not the allowed signer
+        const connectedWallet = wallets[wallets.length - 1]; // Get the most recently connected wallet
+        setSignerConnectionError(
+          `Connected wallet (${connectedWallet.address}) is not the allowed signer (${allowedSigner}). Please disconnect and connect the correct wallet.`
+        );
+        setIsConnectingSigner(false);
+      }
+    };
+
+    checkConnectedWallet();
+  }, [wallets, allowedSigner, connectedSignerAddress, isConnectingSigner])
 
 
 
@@ -641,8 +742,38 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                     </div>
                   )}
 
+                  {/* Signer Wallet Connection Display */}
+                  {connectedSignerAddress && (
+                    <div className="validation-status success" style={{ marginBottom: '16px' }}>
+                      <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <div>
+                        <span style={{ fontWeight: '500' }}>Allowed Signer Connected:</span>
+                        <div style={{
+                          fontFamily: 'monospace',
+                          fontSize: '12px',
+                          marginTop: '4px',
+                          opacity: '0.9',
+                          wordBreak: 'break-all'
+                        }}>
+                          {connectedSignerAddress}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {signerConnectionError && (
+                    <div className="validation-status error" style={{ marginBottom: '16px' }}>
+                      <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      <span>{signerConnectionError}</span>
+                    </div>
+                  )}
+
                   {/* Action Buttons */}
-                  <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
+                  <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
                     <button
                       onClick={handleCheckBalance}
                       disabled={isCheckingBalance}
@@ -653,6 +784,18 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                       }}
                     >
                       {isCheckingBalance ? 'Checking...' : 'Check Balance'}
+                    </button>
+
+                    <button
+                      onClick={handleConnectAllowedSigner}
+                      disabled={isConnectingSigner || !allowedSigner}
+                      className="btn-secondary"
+                      style={{
+                        opacity: (isConnectingSigner || !allowedSigner) ? 0.5 : 1,
+                        cursor: (isConnectingSigner || !allowedSigner) ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      {isConnectingSigner ? 'Connecting...' : 'Connect Allowed Signer Wallet'}
                     </button>
 
                     <button
