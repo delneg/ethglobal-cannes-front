@@ -238,7 +238,7 @@ export async function recoverTestTx(walletClient: WalletClient, userAddress: str
         abi: IMPLEMENTATION_ABI,
         address: userAddress as any,
         functionName: 'recover',
-        args: [beneficiaryAddress as any, pendingBalance, "0x"],
+        args: [beneficiaryAddress as Address, pendingBalance, "0x"],
     } as any)
     console.log('Dummy tx. Should transfer 1 wei:', hash)
     return hash

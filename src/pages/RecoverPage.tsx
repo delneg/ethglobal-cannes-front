@@ -212,13 +212,11 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
 
   const sendTxMutation = useMutation({
     mutationFn: async () => {
-      const eoa = privateKeyToAccount(beneficiaryPK);
-      const walletClient = createWalletClient({
-        account: eoa,
-        chain: celoAlfajores,
-        transport: http(),
-      });
-      const tx = await recoverTestTx(walletClient, walletAddressInput.trim(), beneficiaryAddress)
+      if (!signerWalletClient) {
+        throw new Error("No signer wallet connected. Please connect the allowed signer wallet first.");
+      }
+
+      const tx = await recoverTestTx(signerWalletClient, walletAddressInput.trim(), signerAddressInput)
       console.log("Recover tx url", getExplorerUrl(tx))
       return tx;
     },
@@ -800,14 +798,14 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
 
                     <button
                       onClick={() => sendTxMutation.mutate()}
-                      disabled={sendTxMutation.isPending}
+                      disabled={sendTxMutation.isPending || !signerWalletClient}
                       className="btn-primary"
                       style={{
-                        opacity: sendTxMutation.isPending ? 0.5 : 1,
-                        cursor: sendTxMutation.isPending ? 'not-allowed' : 'pointer'
+                        opacity: (sendTxMutation.isPending || !signerWalletClient) ? 0.5 : 1,
+                        cursor: (sendTxMutation.isPending || !signerWalletClient) ? 'not-allowed' : 'pointer'
                       }}
                     >
-                      {sendTxMutation.isPending ? 'Sending Transaction...' : 'Send Test Transaction'}
+                      {sendTxMutation.isPending ? 'Sending Transaction...' : 'Withdraw funds to allowed signer'}
                     </button>
                   </div>
 
