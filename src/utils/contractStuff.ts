@@ -22,7 +22,8 @@ export const IMPLEMENTATION_ABI = parseAbi([
     "function isInitialized() public view returns (bool)",
     "function recover(address to, uint256 value, bytes calldata data) external",
     "function wrapper() public view returns (address)",
-    "function enableRecoveryMode() public"
+    "function enableRecoveryMode() public",
+    "function disableRecoveryMode() public"
 ])
 
 export const WRAPPER_ABI = parseAbi([
