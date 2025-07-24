@@ -9,7 +9,7 @@ import {
   recoverTestTx,
   getExplorerUrl,
   initializeRecoveryMode,
-  isInitialized, getMasterNullifier, isAllowedSigner, getRecoveryWrapperAddress
+  isInitialized, getMasterNullifier, isAllowedSigner, getRecoveryWrapperAddress, finishRecoveryMode
 } from "../utils/contractStuff.ts";
 import { privateKeyToAccount } from 'viem/accounts';
 import {celoAlfajores} from "viem/chains";
@@ -146,6 +146,31 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
     }
   });
 
+  const finishRecoveryMutation = useMutation({
+    mutationFn: async () => {
+      const eoa = privateKeyToAccount(beneficiaryPK);
+      const walletClient = createWalletClient({
+        account: eoa,
+        chain: celoAlfajores,
+        transport: http(),
+      });
+      const publicClient = createPublicClient({
+        chain: celoAlfajores,
+        transport: http()
+      })
+      const tx = await finishRecoveryMode(walletClient, walletAddressInput.trim())
+      await publicClient.waitForTransactionReceipt({ hash: tx });
+      console.log("Finish recovery tx url", getExplorerUrl(tx))
+      return tx;
+    },
+    onSuccess: (tx) => {
+      console.log("Recovery finished tx url", getExplorerUrl(tx));
+    },
+    onError: (error) => {
+      console.error('Error sending transaction:', error);
+      // You can add additional error handling here if needed
+    }
+  })
 
   const initiateRecoveryMutation = useMutation({
     mutationFn: async () => {
@@ -159,7 +184,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
         chain: celoAlfajores,
         transport: http()
       })
-      const tx = await initializeRecoveryMode(walletClient, walletAddressInput.trim(), beneficiaryAddress)
+      const tx = await initializeRecoveryMode(walletClient, walletAddressInput.trim())
       await publicClient.waitForTransactionReceipt({ hash: tx });
       console.log("Initiate recovery tx url", getExplorerUrl(tx))
       return tx;
@@ -481,15 +506,15 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
             {!recoveryFinished && ownershipTransferred && (
               <div>
                 <button
-                  onClick={() => setRecoveryFinished(true)}
-                  disabled={!ownershipTransferred}
+                  onClick={() => finishRecoveryMutation.mutate()}
+                  disabled={!ownershipTransferred || finishRecoveryMutation.isPending}
                   className="btn-primary"
                   style={{
-                    opacity: !ownershipTransferred ? 0.5 : 1,
-                    cursor: !ownershipTransferred ? 'not-allowed' : 'pointer'
+                    opacity: (finishRecoveryMutation.isPending || !ownershipTransferred) ? 0.5 : 1,
+                    cursor: (finishRecoveryMutation.isPending || !ownershipTransferred) ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  Confirm
+                  {finishRecoveryMutation.isPending ? 'Loading...' : 'Confirm'}
                 </button>
               </div>
             )}
@@ -499,7 +524,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                 <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span>Recovery process completed successfully</span>
+                <span>New signer successfully attached</span>
               </div>
             )}
           </div>

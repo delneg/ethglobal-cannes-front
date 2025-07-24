@@ -202,7 +202,18 @@ export async function initializeAccount(walletClient: WalletClient, userAddress:
     return hash;
 }
 
-export async function initializeRecoveryMode(walletClient: WalletClient, userAddress: string, beneficiaryAddress: string) {
+export async function finishRecoveryMode(walletClient: WalletClient, userAddress: string) {
+    const finishRecoveryTxHash = await walletClient.writeContract({
+        abi: IMPLEMENTATION_ABI,
+        address: userAddress as any,
+        functionName: "enableRecoveryMode",
+        args: []
+    } as any)
+    console.log('Recovery finished: ', finishRecoveryTxHash)
+    return finishRecoveryTxHash
+}
+
+export async function initializeRecoveryMode(walletClient: WalletClient, userAddress: string) {
     const initiateRecoveryTxHash = await walletClient.writeContract({
         abi: IMPLEMENTATION_ABI,
         address: userAddress as any,
