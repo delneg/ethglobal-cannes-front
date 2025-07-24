@@ -9,7 +9,7 @@ import {
   recoverTestTx,
   getExplorerUrl,
   initializeRecoveryMode,
-  isInitialized, getMasterNullifier, isAllowedSigner, getRecoveryWrapperAddress, finishRecoveryMode
+  isInitialized, getMasterNullifier, isAllowedSigner, getRecoveryWrapperAddress, finishRecoveryMode, IMPLEMENTATION_ABI
 } from "../utils/contractStuff.ts";
 import { privateKeyToAccount } from 'viem/accounts';
 import {celoAlfajores} from "viem/chains";
@@ -216,9 +216,38 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
         throw new Error("No signer wallet connected. Please connect the allowed signer wallet first.");
       }
 
-      const tx = await recoverTestTx(signerWalletClient, walletAddressInput.trim(), signerAddressInput)
-      console.log("Recover tx url", getExplorerUrl(tx))
-      return tx;
+      if (!connectedSignerAddress) {
+        throw new Error("Connected signer address not found.");
+      }
+
+      try {
+        // Create a custom implementation of recoverTestTx to ensure account is properly set
+        const publicClient = createPublicClient({
+          chain: celoAlfajores,
+          transport: http()
+        });
+
+        const pendingBalance = await publicClient.getBalance({
+          address: walletAddressInput.trim() as Address,
+        });
+
+        console.log('Pending balance:', pendingBalance);
+        console.log('Recovering to address:', connectedSignerAddress);
+
+        const hash = await signerWalletClient.writeContract({
+          abi: IMPLEMENTATION_ABI,
+          address: walletAddressInput.trim() as Address,
+          functionName: 'recover',
+          args: [connectedSignerAddress, pendingBalance, "0x"],
+          account: connectedSignerAddress
+        });
+
+        console.log("Recover tx hash:", hash);
+        return hash;
+      } catch (error) {
+        console.error("Error in recovery transaction:", error);
+        throw error;
+      }
     },
     onSuccess: (tx) => {
       setTransactionURL(getExplorerUrl(tx));
@@ -344,6 +373,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
         try {
           const provider = await matchingWallet.getEthereumProvider();
           const walletClient = createWalletClient({
+            account: matchingWallet.address as Address,
             chain: celoAlfajores,
             transport: custom(provider)
           });

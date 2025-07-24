@@ -44,7 +44,6 @@ contract SelfProtocolAccount {
 
     function recover(address to, uint256 value, bytes calldata data) external {
         require(isInitialized(), "not initialized");
-        require(!wrapper.isInRecoveryMode(), "we are in recovery mode");
 
         if (msg.sender != wrapper.allowedSigner()) {
             revert("Only allowed signer can recover");
