@@ -54,7 +54,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   const [validationError, setValidationError] = useState("");
 
   // Common state
-  const [isSignerAlreadyAllowed, setSignerAlreadyAllowed] = useState<boolean | null>(null);
+  const [allowedSigner, setAllowedSigner] = useState<Address | null>(null);
 
   // const {contractAddress} = useClientContext();
 
@@ -115,6 +115,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
       setIsValidSignerAddress(true);
       setOwnershipTransferred(true);
       setSignerAdded(true)
+      setAllowedSigner(signerAddressInput)
 
       return;
     }
@@ -431,6 +432,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                       selfApp={selfApp}
                       onSuccess={() => {
                         setOwnershipTransferred(true);
+                        setAllowedSigner(signerAddressInput as Address);
                         console.log('Signer set successful');
                         // Perform actions after successful verification
                       }}
@@ -443,13 +445,13 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
             }
           </div>
 
-          {/* Step 5: Finish recovery */}
+          {/* Step 5: Confirm added signer */}
           <div className="card" style={{ opacity: !ownershipTransferred ? 0.5 : 1 }}>
             <div className="flex items-center gap-4 mb-6">
               <div className="icon-container icon-teal">
                 <span style={{ color: 'white', fontWeight: 'bold' }}>5</span>
               </div>
-              <h2 className="text-2xl font-semibold text-gray-900">Finish recovery</h2>
+              <h2 className="text-2xl font-semibold text-gray-900">Confirm added signer</h2>
             </div>
             <p className="text-gray-600 mb-8">
               Complete the recovery process by confirming the ownership transfer.
