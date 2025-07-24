@@ -206,7 +206,7 @@ export async function finishRecoveryMode(walletClient: WalletClient, userAddress
     const finishRecoveryTxHash = await walletClient.writeContract({
         abi: IMPLEMENTATION_ABI,
         address: userAddress as any,
-        functionName: "enableRecoveryMode",
+        functionName: "disableRecoveryMode",
         args: []
     } as any)
     console.log('Recovery finished: ', finishRecoveryTxHash)
