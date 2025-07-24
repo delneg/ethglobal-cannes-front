@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import { useNavigate } from 'react-router-dom';
-import {createPublicClient, createWalletClient, EIP1193Provider, http, isAddress, isHex} from 'viem';
+import {Address, createPublicClient, createWalletClient, EIP1193Provider, http, isAddress, isHex} from 'viem';
 import Header from '../components/Header';
 import {SelfApp, SelfAppBuilder, SelfQRcodeWrapper} from "@selfxyz/qrcode";
 import {useSignMessage} from '@privy-io/react-auth';
@@ -10,7 +10,7 @@ import {
   getExplorerUrl,
   getSmartAccountImplementationAddress,
   initializeRecoveryMode,
-  isInitialized, getMasterNullifier
+  isInitialized, getMasterNullifier, isAllowedSigner
 } from "../utils/contractStuff.ts";
 import { privateKeyToAccount } from 'viem/accounts';
 import {celoAlfajores} from "viem/chains";
@@ -54,6 +54,9 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState("");
 
+  // Common state
+  const [isSignerAlreadyAllowed, setSignerAlreadyAllowed] = useState<boolean | null>(null);
+
   // const {contractAddress} = useClientContext();
 
   // Handle validation button click
@@ -96,7 +99,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
   };
 
   // Handle signer address validation
-  const handleValidateSignerAddress = () => {
+  const handleValidateSignerAddress = async () => {
     if (!signerAddressInput.trim()) {
       setSignerValidationError("Please enter a signer address");
       return;
@@ -105,6 +108,15 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
     if (!isAddress(signerAddressInput)) {
       setIsValidSignerAddress(false);
       setSignerValidationError("Invalid signer address");
+      return;
+    }
+
+    const isSignerAlreadyAllowed = await isAllowedSigner(walletAddressInput as Address, signerAddressInput)
+    if (isSignerAlreadyAllowed) {
+      setIsValidSignerAddress(true);
+      setOwnershipTransferred(true);
+      setSignerAdded(true)
+
       return;
     }
 
