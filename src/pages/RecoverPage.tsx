@@ -468,7 +468,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
                     cursor: !ownershipTransferred ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  Finish Recovery
+                  Confirm
                 </button>
               </div>
             )}
