@@ -3,7 +3,7 @@ import {useCreateWallet, useLogin, useLogout, usePrivy, useSignAuthorization, us
 import {createPublicClient, createWalletClient, custom, EIP1193Provider, Hex, http} from "viem";
 import {BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 import {QueryClient, useMutation, useQuery} from "@tanstack/react-query";
-import {celoAlfajores} from "viem/chains";
+import {celo} from "viem/chains";
 import {createKernelAccount, createKernelAccountClient, createZeroDevPaymasterClient} from "@zerodev/sdk";
 import {signerToEcdsaValidator} from "@zerodev/ecdsa-validator";
 import {getEntryPoint, KERNEL_V3_3} from "@zerodev/sdk/constants";
@@ -34,7 +34,7 @@ function App() {
    * The configured public client or null if wallet client is not available
    */
   const celoTestnetPublicClient = createPublicClient({
-    chain: celoAlfajores,
+    chain: celo,
     transport: http(),
   });
   // /**
@@ -45,7 +45,7 @@ function App() {
   const celoTestnetPaymasterClient = useMemo(() => {
     if (!celoTestnetPublicClient) return null;
     return createZeroDevPaymasterClient({
-      chain: celoAlfajores,
+      chain: celo,
       transport: http(),
     });
   }, [celoTestnetPublicClient]);

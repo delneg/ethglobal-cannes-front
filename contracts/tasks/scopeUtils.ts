@@ -1,5 +1,5 @@
 import {createPublicClient, getContractAddress, http} from "viem";
-import {celoAlfajores} from "viem/chains";
+import {celo} from "viem/chains";
 import {
     poseidon1,
     poseidon2,
@@ -21,7 +21,7 @@ import {
 
 export const calculateContractAddress = async (deployerAddress: `0x${string}`) => {
     const publicClient = createPublicClient({
-        chain: celoAlfajores,
+        chain: celo,
         transport: http()
     })
 

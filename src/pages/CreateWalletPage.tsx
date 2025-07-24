@@ -12,7 +12,7 @@ import {useClientContext} from "../context/ClientContext.tsx";
 import {useMutation} from "@tanstack/react-query";
 import {getMockedPaymasterWalletClient} from "../utils/mockPaymaster.ts";
 import {useSign7702Authorization, useWallets} from "@privy-io/react-auth";
-import {celoAlfajores} from "viem/chains";
+import {celo} from "viem/chains";
 
 interface SetupRecoveryPageProps {
   isAuthenticated: boolean;
@@ -46,7 +46,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
   const createAuthorization = async (userAddress: Address, chain: Chain, implementationAddress: Address) => {
     const publicClient = createPublicClient({
       transport: http(),
-      chain: celoAlfajores,
+      chain: celo,
     })
     const userNonce = await publicClient.getTransactionCount({address: userAddress})
     return await signAuthorization({
@@ -63,7 +63,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
       // // Drop old auth
       // const zeroAuth = await createAuthorization(
       //     userAddress as Address,
-      //     celoAlfajores,
+      //     celo,
       //     zeroAddress
       // )
       // await dropAuth(paymasterWalletClient, userAddress as Address, zeroAuth)
@@ -73,7 +73,7 @@ const SetupRecoveryPage: React.FC<SetupRecoveryPageProps> = ({
       console.log('Initializing account for user', userAddress)
       const auth = await createAuthorization(
           userAddress as Address,
-          celoAlfajores,
+          celo,
           IMPLEMENTATION_ADDRESS as Address
       )
       const contractAddress = await calculateContractAddress(userAddress as any)

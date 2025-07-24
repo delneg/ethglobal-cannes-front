@@ -7,7 +7,7 @@ import {
     SignAuthorizationReturnType,
     WalletClient
 } from "viem";
-import {celoAlfajores} from "viem/chains";
+import {celo} from "viem/chains";
 import {hashEndpointWithScope} from "./scopeGenerator.ts";
 
 
@@ -35,7 +35,7 @@ export const IMPLEMENTATION_ADDRESS = import.meta.env.VITE_IMPLEMENTATION_ADDRES
 export const SCOPE_SEED = "my-app-dev"
 export const calculateContractAddress = async (deployerAddress: `0x${string}`) => {
     const publicClient = createPublicClient({
-        chain: celoAlfajores,
+        chain: celo,
         transport: http()
     })
 
@@ -64,7 +64,7 @@ export const calculateContractAddress = async (deployerAddress: `0x${string}`) =
 
 export async function isAllowedSigner(userAddress: Address, signerAddress: Address) {
     const publicClient = createPublicClient({
-        chain: celoAlfajores,
+        chain: celo,
         transport: http()
     })
     try {
@@ -86,7 +86,7 @@ export async function isAllowedSigner(userAddress: Address, signerAddress: Addre
 
 export async function isInitialized(userAddress: string) {
     const publicClient = createPublicClient({
-        chain: celoAlfajores,
+        chain: celo,
         transport: http()
     })
     try {
@@ -104,7 +104,7 @@ export async function isInitialized(userAddress: string) {
 
 export async function getMasterNullifier(userAddress: string) {
     const publicClient = createPublicClient({
-        chain: celoAlfajores,
+        chain: celo,
         transport: http()
     })
     try {
@@ -129,7 +129,7 @@ export async function getMasterNullifier(userAddress: string) {
 
 // export async function getRecoveryWrapperAddress(userAddress: Address) {
 //   const publicClient = createPublicClient({
-//     chain: celoAlfajores,
+//     chain: celo,
 //     transport: http()
 //   })
 //
@@ -155,7 +155,7 @@ export async function getMasterNullifier(userAddress: string) {
 //   console.log('Drop auth tx hash: ', hash)
 //
 //   const publicClient = createPublicClient({
-//     chain: celoAlfajores,
+//     chain: celo,
 //     transport: http()
 //   })
 //
@@ -184,12 +184,12 @@ export async function initializeAccount(walletClient: WalletClient, userAddress:
         authorizationList: [authorization],
         functionName: 'initialize',
         args: [scope, false],
-        chain: celoAlfajores
+        chain: celo
     } as any)
     console.log('Transaction hash:', hash)
 
     const publicClient = createPublicClient({
-        chain: celoAlfajores,
+        chain: celo,
         transport: http()
     })
 
@@ -227,7 +227,7 @@ export async function initializeRecoveryMode(walletClient: WalletClient, userAdd
 
 export async function recoverTestTx(walletClient: WalletClient, userAddress: string, beneficiaryAddress: string) {
     const publicClient = createPublicClient({
-        chain: celoAlfajores,
+        chain: celo,
         transport: http()
     })
     const pendingBalance = await publicClient.getBalance({
@@ -247,7 +247,7 @@ export async function recoverTestTx(walletClient: WalletClient, userAddress: str
 
 export async function getRecoveryWrapperAddress(userAddress: string) {
     const publicClient = createPublicClient({
-        chain: celoAlfajores,
+        chain: celo,
         transport: http()
     })
     return await publicClient.readContract({

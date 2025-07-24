@@ -12,7 +12,7 @@ import {
   isInitialized, getMasterNullifier, isAllowedSigner, getRecoveryWrapperAddress, finishRecoveryMode, IMPLEMENTATION_ABI
 } from "../utils/contractStuff.ts";
 import { privateKeyToAccount } from 'viem/accounts';
-import {celoAlfajores} from "viem/chains";
+import {celo} from "viem/chains";
 import {useMutation} from "@tanstack/react-query";
 
 interface RecoverPageProps {
@@ -154,7 +154,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
 
     try {
       const publicClient = createPublicClient({
-        chain: celoAlfajores,
+        chain: celo,
         transport: http()
       });
 
@@ -223,7 +223,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
       try {
         // Create a custom implementation of recoverTestTx to ensure account is properly set
         const publicClient = createPublicClient({
-          chain: celoAlfajores,
+          chain: celo,
           transport: http()
         });
 
@@ -263,11 +263,11 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
       const eoa = privateKeyToAccount(beneficiaryPK);
       const walletClient = createWalletClient({
         account: eoa,
-        chain: celoAlfajores,
+        chain: celo,
         transport: http(),
       });
       const publicClient = createPublicClient({
-        chain: celoAlfajores,
+        chain: celo,
         transport: http()
       })
       const tx = await finishRecoveryMode(walletClient, walletAddressInput.trim())
@@ -291,11 +291,11 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
       const eoa = privateKeyToAccount(beneficiaryPK);
       const walletClient = createWalletClient({
         account: eoa,
-        chain: celoAlfajores,
+        chain: celo,
         transport: http(),
       });
       const publicClient = createPublicClient({
-        chain: celoAlfajores,
+        chain: celo,
         transport: http()
       })
       const tx = await initializeRecoveryMode(walletClient, walletAddressInput.trim())
@@ -374,7 +374,7 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
           const provider = await matchingWallet.getEthereumProvider();
           const walletClient = createWalletClient({
             account: matchingWallet.address as Address,
-            chain: celoAlfajores,
+            chain: celo,
             transport: custom(provider)
           });
 
