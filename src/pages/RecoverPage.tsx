@@ -457,6 +457,27 @@ const RecoverPage: React.FC<RecoverPageProps> = ({
               Complete the recovery process by confirming the ownership transfer.
             </p>
 
+            {/* Display allowed signer address */}
+            {allowedSigner && (
+              <div className="validation-status success" style={{ marginBottom: '16px' }}>
+                <svg style={{ width: '16px', height: '16px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <div>
+                  <span style={{ fontWeight: '500' }}>Allowed Signer Address:</span>
+                  <div style={{
+                    fontFamily: 'monospace',
+                    fontSize: '12px',
+                    marginTop: '4px',
+                    wordBreak: 'break-all',
+                    opacity: '0.9'
+                  }}>
+                    {allowedSigner}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {!recoveryFinished && ownershipTransferred && (
               <div>
                 <button
